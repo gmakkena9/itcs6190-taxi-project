@@ -1,8 +1,7 @@
 # ITCS 6190 – Cloud Computing for Data Analysis
 ## Course Project: Data Analysis with Apache Spark
 
-**Team:** Solo — _Gopi Bharath Makkena_ (GitHub: @gmakkena9)
-
+**Team:** Team 3 (Solo) — Gopi Bharath Makkena (GitHub: @gmakkena9)
 **Chosen dataset:** NYC TLC Yellow Taxi Trip Records (+ Taxi Zone Lookup)
 Source: <https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page>
 
