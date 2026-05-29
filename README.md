@@ -22,5 +22,5 @@ progresses (see the Proposal Issue)._
 - **MLlib** — trip-duration regression with evaluation metrics
 
 ### Status
-Week 2 — project setup. Implementation lands incrementally via weekly PRs
-(Week 3: ingestion + EDA · Week 4: streaming + MLlib · Week 5: full pipeline).
+Week 1 — project setup. Implementation lands incrementally via weekly PRs
+(Week 2: ingestion + EDA · Week 2: streaming + MLlib · Week 3: full pipeline).
