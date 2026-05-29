@@ -22,4 +22,6 @@ progresses (see the Proposal Issue)._
 
 ### Status
 Week 1 — project setup. Implementation lands incrementally via weekly PRs
-(Week 2: ingestion + EDA · Week 2: streaming + MLlib · Week 3: full pipeline).
+Week 1 & Week 2 : ingestion + EDA
+Week 2: streaming + MLlib · 
+Week 3: full pipeline
