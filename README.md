@@ -1,27 +1,64 @@
 # ITCS 6190 – Cloud Computing for Data Analysis
-## Course Project: Data Analysis with Apache Spark
+## Course Project: NYC Taxi Trip-Duration Analysis with Apache Spark
 
 **Team:** Team 3 (Solo) — Gopi Bharath Makkena (GitHub: @gmakkena9)
+
 **Chosen dataset:** NYC TLC Yellow Taxi Trip Records (+ Taxi Zone Lookup)
-Source: <https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page>
+Source: https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
 
-### Project description (placeholder)
-An end-to-end Apache Spark pipeline analyzing NYC Yellow Taxi trips. The project
-will use the Structured (DataFrame) API for ingestion, cleaning, feature
-engineering, and joins; Spark SQL to surface demand patterns; Structured
-Streaming to process a simulated real-time feed of trip events; and MLlib to
-train a regression model that predicts **trip duration** from distance, time of
-day, and pickup location. _This description will be refined as the project
-progresses (see the Proposal Issue)._
+---
 
-### Planned Spark components
-- **Structured APIs** — typed ingestion, cleaning, feature engineering, zone join
-- **Spark SQL** — demand-by-hour and top-pickup-zone aggregations
-- **Structured Streaming** — micro-batched trip feed with running aggregations
-- **MLlib** — trip-duration regression with evaluation metrics
+## Overview
+This project builds an end-to-end big-data analytics pipeline on Apache Spark
+using New York City Yellow Taxi trip data. The pipeline ingests raw trip records,
+cleans and enriches them, surfaces demand patterns across the city, processes a
+simulated real-time stream of trip events, and trains a machine learning model to
+predict how long a trip will take. It integrates all the required Spark
+components — Structured APIs, Spark SQL, Structured Streaming, and MLlib — and is
+designed to run end-to-end in Spark local mode with a single command.
 
-### Status
-Week 1 — project setup. Implementation lands incrementally via weekly PRs
-Week 1 & Week 2 : ingestion + EDA
-Week 2: streaming + MLlib · 
-Week 3: full pipeline
+The NYC taxi dataset is a good fit because it is large, well-documented, and rich
+in the kinds of signals that make analysis interesting: distance, time of day,
+day of week, and location all influence both demand and trip duration. The full
+dataset is several gigabytes and will be stored externally per the project rules;
+a small, seeded representative sample with the same schema is committed under
+`data/sample/` so the pipeline can be reproduced offline.
+
+## Analytical / predictive questions
+1. **Can we predict the duration of a taxi trip (in minutes)** from its distance,
+   pickup time of day, day of week, and pickup zone? This is the primary
+   predictive task and is framed as a regression problem.
+2. **How do demand and trip duration vary across time and space** — when and where
+   are the busiest pickup zones, and how much does rush-hour congestion increase
+   travel time compared with off-peak hours?
+
+## Planned Spark components
+- **Structured APIs (DataFrame):** typed-schema ingestion of the raw trip data,
+  cleaning out invalid records (zero distance, negative fares, impossible
+  durations), feature engineering (trip duration, pickup hour, day of week,
+  weekend flag, rush-hour flag, average speed), and a broadcast **join** with the
+  taxi-zone lookup to attach each trip's pickup borough and zone.
+- **Spark SQL:** aggregations that summarize demand-by-hour (trip counts, average
+  duration, average fare) and rank the top pickup zones to reveal demand hotspots.
+- **Structured Streaming:** a simulated real-time feed, created by splitting the
+  sample into micro-batch files read from a directory source, with a running
+  aggregation of trip volume, average fare, and average duration per pickup hour.
+- **MLlib:** a regression pipeline (categorical encoding → vector assembly →
+  model) predicting trip duration, using a Random Forest as the primary model and
+  a Linear Regression baseline, evaluated with RMSE, MAE, and R².
+
+## Reproducibility
+The full pipeline will run from raw data to final outputs with a single command
+(`run.sh` / `make run`) in Spark local mode, so the results can be reproduced on
+any machine with Java and Python installed. A small unit-test suite and GitHub
+Actions CI will guard the core logic of each stage.
+
+## Repository structure
+.
+├── data/        # external-data pointer + small committed sample
+├── src/         # pipeline stages: ingestion, transformations, streaming, ml_pipeline
+├── notebooks/   # exploratory data analysis
+├── tests/       # unit tests for each stage
+├── docs/        # dataset overview, methodology, results, limitations, reproduction guide
+├── run.sh       # one-command end-to-end run
+└── Makefile     # run / test / clean targets
