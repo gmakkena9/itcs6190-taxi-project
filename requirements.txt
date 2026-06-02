@@ -1,4 +1,5 @@
-pyspark
+pyspark>=3.5
 pandas
+numpy
 matplotlib
 pytest
