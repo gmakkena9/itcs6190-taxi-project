@@ -1,13 +1,13 @@
 """EDA: derived columns (duration, hour, borough) compute correctly."""
-from datetime import datetime
+from datetime import datetime, timezone
 
 from eda import add_eda_columns
 
 
 def test_add_eda_columns(spark):
     trips = spark.createDataFrame(
-        [(datetime(2024, 1, 1, 8, 0), datetime(2024, 1, 1, 8, 15), 2.5, 161, 12.0),
-         (datetime(2024, 1, 1, 17, 0), datetime(2024, 1, 1, 17, 30), 4.0, 132, 18.0)],
+        [(datetime(2024, 1, 1, 8, 0, tzinfo=timezone.utc), datetime(2024, 1, 1, 8, 15, tzinfo=timezone.utc), 2.5, 161, 12.0),
+         (datetime(2024, 1, 1, 17, 0, tzinfo=timezone.utc), datetime(2024, 1, 1, 17, 30, tzinfo=timezone.utc), 4.0, 132, 18.0)],
         ["tpep_pickup_datetime", "tpep_dropoff_datetime", "trip_distance",
          "PULocationID", "fare_amount"],
     )
