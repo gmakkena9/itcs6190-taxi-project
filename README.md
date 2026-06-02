@@ -62,3 +62,8 @@ Actions CI will guard the core logic of each stage.
 ├── docs/        # dataset overview, methodology, results, limitations, reproduction guide
 ├── run.sh       # one-command end-to-end run
 └── Makefile     # run / test / clean targets
+- **Size & dimensions:**
+  - **Rows:** ~3 million trips per monthly file; the full archive is very large — <cite index="7-1">roughly 60 million yellow-taxi rows for 2024–May 2025 alone</cite>, and <cite index="3-1">about 1.5 billion rows (~50 GB) accumulated across 2009 onward</cite>.
+  - **Columns:** ~19 fields per trip record (e.g. VendorID, pickup/dropoff datetimes, passenger_count, trip_distance, PULocationID, DOLocationID, payment_type, fare_amount, tip_amount, tolls_amount, total_amount); <cite index="10-1">for 2025 onward a cbd_congestion_fee column       was added for congestion pricing</cite>. The Taxi Zone Lookup adds 4 columns (LocationID, Borough, Zone, service_zone) across 265 zones.
+  - **Format & file size:** <cite index="10-1">published monthly as Parquet files (the format is used because of the dataset's size)</cite>; a single monthly file is on the order of ~50 MB compressed.
+  - **Scope I will use:** 1–3 monthly files (~3–9M rows) referenced externally, with a small seeded ~40K-row sample (same schema) committed under `data/sample/` for offline, one-command runs.
