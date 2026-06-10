@@ -10,3 +10,5 @@ data/stream_source/
 data/_checkpoints/
 # Real TLC files for the validation run (downloaded locally, not committed)
 data/real/
+*.crc 
+_SUCCESS 
