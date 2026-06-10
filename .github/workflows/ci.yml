@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  PYSPARK_PYTHON: python3
+  JAVA_TOOL_OPTIONS: "-Xmx1g"
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -23,6 +27,12 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
@@ -33,19 +43,19 @@ jobs:
         run: python3 -m pytest tests/ -q --tb=short
 
       - name: Run ingestion stage
-        run: python3 src/ingestion.py
+        run: cd src && python3 ingestion.py
 
       - name: Run transformations stage
-        run: python3 src/transformations.py
+        run: cd src && python3 transformations.py
 
       - name: Run streaming stage
-        run: python3 src/streaming.py
+        run: cd src && python3 streaming.py
 
       - name: Run ML pipeline stage
-        run: python3 src/ml_pipeline.py
+        run: cd src && python3 ml_pipeline.py
 
       - name: Run EDA stage
-        run: python3 src/eda.py
+        run: cd src && python3 eda.py
 
       - name: Verify outputs exist
         run: |
