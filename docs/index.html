@@ -3,1097 +3,497 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NYC Taxi Analytics — ITCS 6190 Live Demo</title>
+<title>NYC Taxi Trip Analysis — ITCS 6190</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  :root {
-    --bg: #0B0F1A;
-    --card: #131929;
-    --card2: #0F1E30;
-    --accent: #F5A623;
-    --teal: #00C9A7;
-    --muted: #8899AA;
-    --white: #FFFFFF;
-    --light: #D4E0EC;
-    --red: #FF5E5E;
-    --border: #1E2D42;
-    --rush: #FF8C00;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: var(--bg);
-    color: var(--white);
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    min-height: 100vh;
-  }
-
-  /* ── Header ── */
-  header {
-    background: var(--card);
-    border-bottom: 2px solid var(--accent);
-    padding: 16px 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  .taxi-icon { font-size: 36px; }
-  header h1 { font-size: 20px; font-weight: 700; color: var(--white); }
-  header p  { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .badge {
-    margin-left: auto;
-    background: #0E3D2A;
-    border: 1px solid var(--teal);
-    color: var(--teal);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-  }
-
-  /* ── Nav tabs ── */
-  nav {
-    background: var(--card);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    gap: 0;
-    padding: 0 24px;
-    overflow-x: auto;
-  }
-  .tab {
-    padding: 12px 20px;
-    font-size: 13px;
-    color: var(--muted);
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    white-space: nowrap;
-    transition: all .2s;
-    background: none;
-    border-top: none;
-    border-left: none;
-    border-right: none;
-    font-family: inherit;
-  }
-  .tab:hover  { color: var(--light); }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-  /* ── Main ── */
-  main { padding: 24px; max-width: 1200px; margin: 0 auto; }
-  .page { display: none; }
-  .page.active { display: block; }
-
-  /* ── Cards & grid ── */
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
-  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
-  @media(max-width:700px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}}
-
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 20px;
-  }
-  .card-title {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 12px;
-  }
-
-  /* ── Stat tiles ── */
-  .stat-tile {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px;
-    text-align: center;
-  }
-  .stat-tile .num { font-size: 32px; font-weight: 800; line-height: 1; }
-  .stat-tile .lbl { font-size: 11px; color: var(--muted); margin-top: 6px; }
-  .accent { color: var(--accent); }
-  .teal   { color: var(--teal); }
-
-  /* ── Section titles ── */
-  h2 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
-  h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
-  .section-desc { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
-
-  /* ── Pipeline viz ── */
-  .pipeline {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin: 16px 0;
-  }
-  .pipe-stage {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    background: var(--card2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 16px;
-    cursor: pointer;
-    transition: border-color .2s;
-  }
-  .pipe-stage:hover { border-color: var(--accent); }
-  .pipe-stage.active { border-color: var(--teal); background: #0A2030; }
-  .stage-num {
-    background: var(--accent);
-    color: var(--bg);
-    font-weight: 800;
-    font-size: 13px;
-    min-width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .stage-num.data { background: var(--muted); }
-  .stage-name { font-size: 14px; font-weight: 600; }
-  .stage-desc { font-size: 11px; color: var(--muted); }
-  .stage-tag  { margin-left: auto; font-size: 10px; font-weight: 700;
-    padding: 2px 8px; border-radius: 12px; background: #0E3D2A; color: var(--teal); }
-  .stage-detail {
-    display: none;
-    background: #080E1A;
-    border: 1px solid var(--teal);
-    border-radius: 8px;
-    padding: 14px 16px;
-    margin: -4px 0 6px;
-    font-size: 12px;
-    color: var(--light);
-    line-height: 1.6;
-  }
-  .stage-detail.show { display: block; }
-  code {
-    background: #0A2030;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 1px 6px;
-    font-family: 'Cascadia Code', 'Consolas', monospace;
-    font-size: 11px;
-    color: var(--teal);
-  }
-
-  /* ── Chart containers ── */
-  .chart-wrap { position: relative; height: 260px; }
-  .chart-wrap-sm { position: relative; height: 200px; }
-
-  /* ── Demand table ── */
-  .demand-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .demand-table th {
-    background: var(--accent);
-    color: var(--bg);
-    padding: 8px 10px;
-    text-align: left;
-    font-weight: 700;
-    font-size: 11px;
-  }
-  .demand-table td {
-    padding: 7px 10px;
-    border-bottom: 1px solid var(--border);
-    color: var(--light);
-  }
-  .demand-table tr.rush-row td { color: var(--rush); font-weight: 600; background: #1A0E00; }
-  .demand-table tr:hover td { background: var(--card2); }
-
-  /* ── ML Metrics ── */
-  .model-card {
-    background: var(--card2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 20px;
-  }
-  .model-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-  .model-tag {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 14px;
-  }
-  .metric-row { display: flex; gap: 12px; margin-bottom: 8px; }
-  .metric-box {
-    flex: 1;
-    background: var(--card);
-    border-radius: 6px;
-    padding: 10px;
-    text-align: center;
-  }
-  .metric-val { font-size: 22px; font-weight: 800; color: var(--teal); }
-  .metric-lbl { font-size: 10px; color: var(--muted); margin-top: 2px; }
-
-  /* ── Importance bar ── */
-  .imp-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-  .imp-name { width: 140px; font-size: 12px; color: var(--light); flex-shrink: 0; }
-  .imp-track { flex: 1; background: var(--border); border-radius: 3px; height: 10px; overflow: hidden; }
-  .imp-fill  { height: 100%; border-radius: 3px; transition: width .6s; }
-  .imp-pct { width: 38px; text-align: right; font-size: 12px; color: var(--muted); }
-
-  /* ── Streaming ── */
-  .stream-log {
-    background: #060B12;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px;
-    font-family: 'Cascadia Code', Consolas, monospace;
-    font-size: 11px;
-    height: 220px;
-    overflow-y: auto;
-    line-height: 1.6;
-  }
-  .log-line { color: var(--muted); }
-  .log-line.info  { color: var(--teal); }
-  .log-line.batch { color: var(--accent); }
-  .log-line.done  { color: #7FCC7F; }
-
-  .stream-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-    margin-top: 10px;
-  }
-  .stream-table th {
-    background: #0E3D2A;
-    color: var(--teal);
-    padding: 7px 10px;
-    font-size: 11px;
-    text-align: left;
-  }
-  .stream-table td {
-    padding: 6px 10px;
-    border-bottom: 1px solid var(--border);
-    color: var(--light);
-  }
-
-  /* ── Predict widget ── */
-  .predict-form { display: flex; flex-direction: column; gap: 14px; }
-  label { font-size: 12px; color: var(--muted); }
-  select, input[type=range] {
-    width: 100%;
-    margin-top: 6px;
-  }
-  select {
-    background: var(--card2);
-    border: 1px solid var(--border);
-    color: var(--white);
-    padding: 8px 10px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-family: inherit;
-  }
-  input[type=range] {
-    accent-color: var(--accent);
-    height: 6px;
-  }
-  .range-val {
-    text-align: right;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--accent);
-    margin-top: 4px;
-  }
-  .predict-btn {
-    background: var(--accent);
-    color: var(--bg);
-    border: none;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
-    transition: opacity .15s;
-  }
-  .predict-btn:hover { opacity: .88; }
-  .result-box {
-    background: var(--card2);
-    border: 1px solid var(--teal);
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    display: none;
-  }
-  .result-box.show { display: block; }
-  .result-duration { font-size: 48px; font-weight: 800; color: var(--teal); line-height: 1; }
-  .result-unit { font-size: 14px; color: var(--muted); margin-top: 4px; }
-  .result-breakdown { font-size: 12px; color: var(--muted); margin-top: 10px; }
-
-  /* ── Zone heatmap ── */
-  .zone-grid {
-    display: grid;
-    grid-template-columns: repeat(5,1fr);
-    gap: 6px;
-    margin-top: 12px;
-  }
-  .zone-cell {
-    background: var(--card2);
-    border-radius: 6px;
-    padding: 10px 6px;
-    text-align: center;
-    font-size: 11px;
-    border: 1px solid var(--border);
-    transition: transform .15s;
-    cursor: default;
-  }
-  .zone-cell:hover { transform: scale(1.05); }
-  .zone-cell .zone-name { font-size: 10px; color: var(--muted); margin-top: 4px; line-height: 1.2; }
-  .zone-cell .zone-trips { font-size: 16px; font-weight: 800; }
-
-  /* ── Footer ── */
-  footer {
-    text-align: center;
-    padding: 20px;
-    font-size: 11px;
-    color: var(--muted);
-    border-top: 1px solid var(--border);
-    margin-top: 40px;
-  }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;background:#f2f2f7;color:#1d1d1f;min-height:100vh}
+.wrap{max-width:800px;margin:0 auto;padding:0 16px 60px}
+.hero{width:100%;border-radius:0 0 24px 24px;overflow:hidden;margin-bottom:20px;position:relative}
+.hero svg{display:block;width:100%}
+.hero-text{position:absolute;bottom:0;left:0;right:0;padding:20px 24px;background:linear-gradient(transparent,rgba(10,15,40,.85))}
+.hero-title{font-size:26px;font-weight:700;color:#fff;letter-spacing:-.4px}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.7);margin-top:4px}
+.seg{display:flex;background:#e5e5ea;border-radius:11px;padding:3px;gap:2px;margin-bottom:20px}
+.seg-btn{flex:1;padding:8px 4px;border:none;border-radius:9px;font-size:12px;font-weight:400;color:#6e6e73;background:none;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.seg-btn.on{background:#fff;color:#1d1d1f;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.13)}
+.page{display:none}.page.on{display:block}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+@media(max-width:560px){.metrics{grid-template-columns:repeat(2,1fr)}}
+.metric{background:#fff;border-radius:14px;padding:14px 12px}
+.metric-n{font-size:26px;font-weight:700;color:#1d1d1f;line-height:1}
+.metric-l{font-size:11px;color:#6e6e73;margin-top:4px}
+.metric-s{font-size:10px;color:#aeaeb2;margin-top:2px}
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:12px}
+.card-hd{font-size:11px;font-weight:600;color:#6e6e73;margin-bottom:14px;letter-spacing:.06em;text-transform:uppercase}
+.field{margin-bottom:18px}
+.field-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.field-label{font-size:15px;font-weight:500;color:#1d1d1f}
+.field-val{font-size:14px;color:#6e6e73;font-weight:500}
+input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:3px;background:#e5e5ea;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;border:2.5px solid #007aff;cursor:pointer;box-shadow:0 2px 6px rgba(0,122,255,.3)}
+.range-labels{display:flex;justify-content:space-between;font-size:10px;color:#aeaeb2;margin-top:4px}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:7px 14px;border-radius:20px;font-size:13px;border:1.5px solid #e5e5ea;color:#6e6e73;background:#fff;cursor:pointer;font-family:inherit;transition:all .15s}
+.chip:hover{border-color:#007aff;color:#007aff}
+.chip.on{background:#007aff;color:#fff;border-color:#007aff;font-weight:500}
+.chip.rush.on{background:#ff9500;border-color:#ff9500}
+.predict-btn{width:100%;padding:15px;border-radius:14px;border:none;background:#007aff;color:#fff;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px}
+.predict-btn:hover{opacity:.88}
+.result{background:#f2f2f7;border-radius:16px;padding:24px;text-align:center;margin-top:12px}
+.result-num{font-size:76px;font-weight:200;color:#1d1d1f;line-height:1;letter-spacing:-4px}
+.result-unit{font-size:16px;color:#6e6e73;margin-top:6px}
+.result-factors{margin-top:16px;display:flex;flex-direction:column;gap:7px}
+.factor-row{display:flex;justify-content:space-between;align-items:center;font-size:14px;padding:10px 14px;background:#fff;border-radius:10px}
+.factor-label{color:#6e6e73}
+.factor-val{font-weight:500;color:#1d1d1f}
+.fare-result{margin-top:10px;background:#e8f5e9;border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.fare-label{font-size:14px;color:#2e7d32}
+.fare-val{font-size:22px;font-weight:700;color:#1b5e20}
+.imp-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.imp-name{font-size:12px;color:#6e6e73;width:145px;flex-shrink:0}
+.imp-track{flex:1;background:#f2f2f7;border-radius:4px;height:8px;overflow:hidden}
+.imp-fill{height:100%;border-radius:4px}
+.imp-pct{font-size:13px;font-weight:500;color:#1d1d1f;width:40px;text-align:right}
+.zone-item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f2f2f7}
+.zone-item:last-child{border-bottom:none}
+.zone-rank{font-size:12px;font-weight:600;color:#aeaeb2;width:18px}
+.zone-name{flex:1;font-size:14px;color:#1d1d1f}
+.zone-boro{font-size:11px;color:#aeaeb2}
+.zone-trips{font-size:14px;font-weight:600;color:#1d1d1f}
+.insight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:12px}
+.insight-card{background:#fff;border-radius:14px;padding:14px}
+.insight-num{font-size:22px;font-weight:700;color:#1d1d1f}
+.insight-label{font-size:11px;color:#6e6e73;margin-top:4px;line-height:1.4}
+.model-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.model-box{background:#fff;border-radius:14px;padding:16px}
+.model-tag{font-size:10px;font-weight:700;color:#34c759;margin-bottom:4px;letter-spacing:.06em;text-transform:uppercase}
+.model-name{font-size:14px;font-weight:600;color:#1d1d1f;margin-bottom:12px}
+.model-stat{font-size:10px;color:#aeaeb2;margin-top:2px}
+.model-val{font-size:21px;font-weight:600;color:#1d1d1f}
+.stream-log{background:#f2f2f7;border-radius:12px;padding:12px;font-family:'SF Mono',Menlo,monospace;font-size:11px;height:190px;overflow-y:auto;line-height:1.8}
+.l-info{color:#34c759}.l-batch{color:#ff9500}.l-muted{color:#aeaeb2}.l-done{color:#34c759}
+.replay-btn{width:100%;padding:11px;border-radius:12px;border:1.5px solid #e5e5ea;background:#fff;color:#007aff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:8px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:12px}
+.step-row{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid #f2f2f7}
+.step-row:last-child{border-bottom:none}
+.step-num{width:28px;height:28px;border-radius:8px;background:#e8f0ff;color:#007aff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-title{font-size:14px;font-weight:500;color:#1d1d1f}
+.step-sub{font-size:12px;color:#6e6e73;margin-top:2px}
+.pipe-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f2f2f7;cursor:pointer}
+.pipe-row:last-child{border-bottom:none}
+.pipe-icon{width:36px;height:36px;border-radius:10px;background:#f2f2f7;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+.pipe-name{font-size:14px;font-weight:500;color:#1d1d1f}
+.pipe-desc{font-size:12px;color:#6e6e73;margin-top:2px}
+.pipe-detail{font-size:13px;color:#6e6e73;line-height:1.6;margin-top:8px;padding:10px 12px;background:#f2f2f7;border-radius:10px;display:none}
+.pipe-detail.on{display:block}
+.badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;margin-left:auto;flex-shrink:0}
+.b-blue{background:#e8f0ff;color:#007aff}
+.b-green{background:#e8f5e9;color:#34a853}
+.b-orange{background:#fff3e0;color:#ff9500}
+.b-gray{background:#f2f2f7;color:#6e6e73;border:1px solid #e5e5ea}
 </style>
-</head>
-<body>
 
-<header>
-  <span class="taxi-icon">🚕</span>
-  <div>
-    <h1>NYC Taxi Trip-Duration Analysis</h1>
-    <p>ITCS 6190 · Apache Spark End-to-End Pipeline · Gopi Bharath Makkena · Summer 2026</p>
-  </div>
-  <span class="badge">Live Demo</span>
-</header>
-
-<nav>
-  <button class="tab active" onclick="showPage('overview',this)">📊 Overview</button>
-  <button class="tab" onclick="showPage('pipeline',this)">⚙️ Pipeline</button>
-  <button class="tab" onclick="showPage('eda',this)">🔍 EDA &amp; Demand</button>
-  <button class="tab" onclick="showPage('streaming',this)">📡 Streaming</button>
-  <button class="tab" onclick="showPage('ml',this)">🤖 ML Results</button>
-  <button class="tab" onclick="showPage('predict',this)">✨ Predict</button>
-</nav>
-
-<main>
-
-<!-- ═══════════ OVERVIEW ═══════════ -->
-<div class="page active" id="page-overview">
-  <h2>Project Overview</h2>
-  <p class="section-desc">End-to-end big-data pipeline built on <strong>Apache Spark</strong> — ingesting NYC taxi trip data, running demand analysis with Spark SQL, processing a simulated real-time stream, and predicting trip duration with MLlib.</p>
-
-  <div class="grid-4" style="margin-bottom:20px">
-    <div class="stat-tile">
-      <div class="num accent">40K</div>
-      <div class="lbl">Sample trip rows<br><span style="color:#4A6A8A">+ 3M real-data validated</span></div>
-    </div>
-    <div class="stat-tile">
-      <div class="num teal">87%</div>
-      <div class="lbl">Variance explained (R²)<br>Random Forest</div>
-    </div>
-    <div class="stat-tile">
-      <div class="num accent">3.87</div>
-      <div class="lbl">RMSE (minutes)<br>Best model</div>
-    </div>
-    <div class="stat-tile">
-      <div class="num teal">12</div>
-      <div class="lbl">Streaming micro-batches<br>processed</div>
-    </div>
-  </div>
-
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title">Analytical Questions</div>
-      <p style="font-size:13px;color:var(--light);margin-bottom:10px;">
-        <span class="accent" style="font-weight:700">Q1.</span> Can we predict trip duration (minutes) from distance, pickup time, and zone?
-      </p>
-      <p style="font-size:13px;color:var(--light);">
-        <span class="accent" style="font-weight:700">Q2.</span> How do demand and duration vary across NYC — where are the hotspots, and how does rush hour affect travel time?
-      </p>
-    </div>
-    <div class="card">
-      <div class="card-title">Spark Components Used</div>
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span style="background:#0E3D2A;border:1px solid var(--teal);color:var(--teal);padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;">✓</span>
-          <span style="font-size:13px;"><strong>Structured APIs</strong> — typed ingestion, cleaning, joins, feature engineering</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span style="background:#0E3D2A;border:1px solid var(--teal);color:var(--teal);padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;">✓</span>
-          <span style="font-size:13px;"><strong>Spark SQL</strong> — demand hotspots, hourly aggregations</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span style="background:#0E3D2A;border:1px solid var(--teal);color:var(--teal);padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;">✓</span>
-          <span style="font-size:13px;"><strong>Structured Streaming</strong> — 12-batch micro-feed simulation</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span style="background:#0E3D2A;border:1px solid var(--teal);color:var(--teal);padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;">✓</span>
-          <span style="font-size:13px;"><strong>MLlib</strong> — Random Forest + Linear Regression regression pipeline</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:20px;">
-    <div class="card-title">Key Finding</div>
-    <p style="font-size:14px;color:var(--white);line-height:1.7;">
-      Rush-hour status and pickup hour together account for <span class="accent" style="font-weight:800">~21%</span> of the model's predictive power —
-      even though average trip distance barely changes across the day (~2.9 mi all day), average duration
-      <span class="accent" style="font-weight:800">nearly doubles</span> during congested windows (7–10 AM: ~18.7 min, 4–7 PM: ~21 min) vs. overnight (~10 min).
-      A dispatcher predicting ETAs from distance alone would be <em>systematically optimistic</em> during rush hour.
-    </p>
-  </div>
+<div class="hero">
+<svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg" style="display:block">
+  <rect width="800" height="320" fill="#0a0f28"/>
+  <!-- stars -->
+  <circle cx="60" cy="30" r="1" fill="white" opacity=".6"/>
+  <circle cx="120" cy="18" r="1.2" fill="white" opacity=".8"/>
+  <circle cx="200" cy="25" r="1" fill="white" opacity=".5"/>
+  <circle cx="320" cy="12" r="1.4" fill="white" opacity=".9"/>
+  <circle cx="450" cy="22" r="1" fill="white" opacity=".6"/>
+  <circle cx="560" cy="10" r="1.2" fill="white" opacity=".7"/>
+  <circle cx="650" cy="28" r="1" fill="white" opacity=".5"/>
+  <circle cx="740" cy="16" r="1.3" fill="white" opacity=".8"/>
+  <circle cx="90" cy="55" r="0.8" fill="white" opacity=".4"/>
+  <circle cx="380" cy="40" r="0.9" fill="white" opacity=".5"/>
+  <circle cx="680" cy="45" r="0.8" fill="white" opacity=".4"/>
+  <!-- moon -->
+  <circle cx="720" cy="40" r="18" fill="#f5e6c8"/>
+  <circle cx="728" cy="34" r="14" fill="#0a0f28"/>
+  <!-- far background buildings -->
+  <rect x="0" y="160" width="40" height="160" fill="#111830"/>
+  <rect x="42" y="180" width="30" height="140" fill="#0d1526"/>
+  <rect x="74" y="150" width="50" height="170" fill="#111830"/>
+  <rect x="126" y="170" width="35" height="150" fill="#0d1526"/>
+  <rect x="163" y="145" width="45" height="175" fill="#111830"/>
+  <rect x="210" y="165" width="30" height="155" fill="#0d1526"/>
+  <rect x="242" y="140" width="55" height="180" fill="#111830"/>
+  <rect x="299" y="158" width="40" height="162" fill="#0d1526"/>
+  <rect x="341" y="148" width="48" height="172" fill="#111830"/>
+  <rect x="391" y="162" width="33" height="158" fill="#0d1526"/>
+  <rect x="426" y="135" width="60" height="185" fill="#111830"/>
+  <rect x="488" y="155" width="38" height="165" fill="#0d1526"/>
+  <rect x="528" y="145" width="52" height="175" fill="#111830"/>
+  <rect x="582" y="168" width="35" height="152" fill="#0d1526"/>
+  <rect x="619" y="138" width="58" height="182" fill="#111830"/>
+  <rect x="679" y="155" width="42" height="165" fill="#0d1526"/>
+  <rect x="723" y="143" width="48" height="177" fill="#111830"/>
+  <rect x="773" y="158" width="27" height="162" fill="#0d1526"/>
+  <!-- building windows (back) -->
+  <rect x="6" y="168" width="4" height="4" fill="#ffd54f" opacity=".7"/>
+  <rect x="12" y="168" width="4" height="4" fill="#ffd54f" opacity=".5"/>
+  <rect x="6" y="178" width="4" height="4" fill="#ffd54f" opacity=".6"/>
+  <rect x="18" y="172" width="4" height="4" fill="#81d4fa" opacity=".6"/>
+  <rect x="80" y="158" width="5" height="5" fill="#ffd54f" opacity=".8"/>
+  <rect x="88" y="158" width="5" height="5" fill="#ffd54f" opacity=".4"/>
+  <rect x="80" y="170" width="5" height="5" fill="#81d4fa" opacity=".6"/>
+  <rect x="88" y="166" width="5" height="5" fill="#ffd54f" opacity=".7"/>
+  <rect x="250" y="150" width="6" height="5" fill="#ffd54f" opacity=".7"/>
+  <rect x="260" y="150" width="6" height="5" fill="#ffd54f" opacity=".5"/>
+  <rect x="270" y="150" width="6" height="5" fill="#81d4fa" opacity=".6"/>
+  <rect x="250" y="162" width="6" height="5" fill="#ffd54f" opacity=".8"/>
+  <rect x="260" y="162" width="6" height="5" fill="#ffd54f" opacity=".4"/>
+  <rect x="432" y="143" width="7" height="6" fill="#ffd54f" opacity=".8"/>
+  <rect x="443" y="143" width="7" height="6" fill="#ffd54f" opacity=".5"/>
+  <rect x="454" y="143" width="7" height="6" fill="#81d4fa" opacity=".6"/>
+  <rect x="432" y="155" width="7" height="6" fill="#ffd54f" opacity=".7"/>
+  <rect x="443" y="155" width="7" height="6" fill="#ffd54f" opacity=".9"/>
+  <rect x="625" y="146" width="7" height="6" fill="#ffd54f" opacity=".7"/>
+  <rect x="636" y="146" width="7" height="6" fill="#81d4fa" opacity=".6"/>
+  <rect x="647" y="146" width="7" height="6" fill="#ffd54f" opacity=".5"/>
+  <rect x="625" y="158" width="7" height="6" fill="#ffd54f" opacity=".8"/>
+  <rect x="636" y="158" width="7" height="6" fill="#ffd54f" opacity=".4"/>
+  <!-- Empire State antenna -->
+  <rect x="348" y="100" width="4" height="48" fill="#1a2540"/>
+  <rect x="344" y="120" width="12" height="28" fill="#1a2540"/>
+  <circle cx="350" cy="100" r="2" fill="#ff4444" opacity=".9"/>
+  <!-- street glow -->
+  <rect x="0" y="270" width="800" height="50" fill="#1a0a00" opacity=".6"/>
+  <ellipse cx="400" cy="285" rx="350" ry="12" fill="#ff8c00" opacity=".12"/>
+  <!-- road -->
+  <rect x="0" y="280" width="800" height="40" fill="#111"/>
+  <!-- road markings -->
+  <rect x="0" y="298" width="60" height="4" fill="#444" rx="2"/>
+  <rect x="80" y="298" width="60" height="4" fill="#444" rx="2"/>
+  <rect x="160" y="298" width="60" height="4" fill="#444" rx="2"/>
+  <rect x="240" y="298" width="60" height="4" fill="#444" rx="2"/>
+  <rect x="320" y="298" width="60" height="4" fill="#444" rx="2"/>
+  <rect x="400" y="298" width="60" height="4" fill="#444" rx="2"/>
+  <rect x="480" y="298" width="60" height="4" fill="#444" rx="2"/>
+  <rect x="560" y="298" width="60" height="4" fill="#444" rx="2"/>
+  <rect x="640" y="298" width="60" height="4" fill="#444" rx="2"/>
+  <rect x="720" y="298" width="80" height="4" fill="#444" rx="2"/>
+  <!-- sidewalk -->
+  <rect x="0" y="265" width="800" height="15" fill="#1c1c1e"/>
+  <!-- street light pole left -->
+  <rect x="55" y="200" width="4" height="70" fill="#2c2c2e"/>
+  <rect x="40" y="200" width="22" height="5" fill="#2c2c2e" rx="2"/>
+  <ellipse cx="51" cy="200" rx="8" ry="3" fill="#ffd54f" opacity=".9"/>
+  <ellipse cx="51" cy="202" rx="30" ry="8" fill="#ff8c00" opacity=".08"/>
+  <!-- street light right -->
+  <rect x="741" y="200" width="4" height="70" fill="#2c2c2e"/>
+  <rect x="738" y="200" width="22" height="5" fill="#2c2c2e" rx="2"/>
+  <ellipse cx="749" cy="200" rx="8" ry="3" fill="#ffd54f" opacity=".9"/>
+  <!-- TAXI CAR - main body -->
+  <rect x="200" y="240" width="180" height="38" fill="#f5c518" rx="6"/>
+  <!-- taxi roof sign -->
+  <rect x="260" y="228" width="60" height="16" fill="#f5c518" rx="4"/>
+  <rect x="264" y="230" width="52" height="12" fill="#1d1d1f" rx="3"/>
+  <text x="290" y="240" font-size="7" font-weight="700" fill="#f5c518" text-anchor="middle" font-family="Arial">TAXI</text>
+  <!-- windows -->
+  <rect x="212" y="244" width="38" height="22" fill="#1a2a4a" rx="3" opacity=".9"/>
+  <rect x="256" y="244" width="44" height="22" fill="#1a2a4a" rx="3" opacity=".9"/>
+  <rect x="306" y="244" width="38" height="22" fill="#1a2a4a" rx="3" opacity=".9"/>
+  <!-- window reflection -->
+  <line x1="215" y1="247" x2="222" y2="263" stroke="white" stroke-width="1" opacity=".15"/>
+  <line x1="259" y1="247" x2="266" y2="263" stroke="white" stroke-width="1" opacity=".15"/>
+  <!-- door seam -->
+  <line x1="254" y1="243" x2="254" y2="278" stroke="#d4a500" stroke-width="1.5"/>
+  <line x1="304" y1="243" x2="304" y2="278" stroke="#d4a500" stroke-width="1.5"/>
+  <!-- door handle -->
+  <rect x="272" y="261" width="12" height="3" fill="#d4a500" rx="1.5"/>
+  <rect x="318" y="261" width="12" height="3" fill="#d4a500" rx="1.5"/>
+  <!-- undercarriage -->
+  <rect x="204" y="275" width="172" height="8" fill="#d4a500" rx="2"/>
+  <!-- wheels -->
+  <circle cx="235" cy="280" r="14" fill="#1c1c1e"/>
+  <circle cx="235" cy="280" r="9" fill="#2c2c2e"/>
+  <circle cx="235" cy="280" r="4" fill="#555"/>
+  <circle cx="345" cy="280" r="14" fill="#1c1c1e"/>
+  <circle cx="345" cy="280" r="9" fill="#2c2c2e"/>
+  <circle cx="345" cy="280" r="4" fill="#555"/>
+  <!-- headlights -->
+  <rect x="196" y="252" width="8" height="10" fill="#fffde7" rx="2"/>
+  <ellipse cx="196" cy="257" rx="22" ry="5" fill="#fff9c4" opacity=".25"/>
+  <!-- tail lights -->
+  <rect x="376" y="252" width="7" height="10" fill="#ff1744" rx="2"/>
+  <ellipse cx="383" cy="257" rx="15" ry="4" fill="#ff1744" opacity=".2"/>
+  <!-- taxi number plate -->
+  <rect x="348" y="265" width="28" height="10" fill="#1d1d1f" rx="2"/>
+  <text x="362" y="273" font-size="6" fill="white" text-anchor="middle" font-family="Arial">NYC 4823</text>
+  <!-- road reflection of taxi -->
+  <rect x="210" y="295" width="160" height="6" fill="#f5c518" opacity=".07" rx="3"/>
+  <!-- pedestrian silhouette -->
+  <circle cx="490" cy="252" r="8" fill="#0d1526"/>
+  <rect x="486" y="260" width="8" height="18" fill="#0d1526" rx="3"/>
+  <line x1="484" y1="265" x2="480" y2="273" stroke="#0d1526" stroke-width="3" stroke-linecap="round"/>
+  <line x1="494" y1="265" x2="498" y2="273" stroke="#0d1526" stroke-width="3" stroke-linecap="round"/>
+  <!-- second distant cab -->
+  <rect x="560" y="254" width="80" height="18" fill="#f5c518" rx="3" opacity=".6"/>
+  <rect x="576" y="249" width="28" height="8" fill="#f5c518" rx="2" opacity=".6"/>
+  <circle cx="572" cy="273" r="7" fill="#1c1c1e" opacity=".7"/>
+  <circle cx="630" cy="273" r="7" fill="#1c1c1e" opacity=".7"/>
+  <!-- data particles overlay -->
+  <circle cx="160" cy="210" r="2" fill="#007aff" opacity=".7"/>
+  <circle cx="180" cy="198" r="1.5" fill="#007aff" opacity=".5"/>
+  <circle cx="170" cy="222" r="1" fill="#34c759" opacity=".6"/>
+  <line x1="160" y1="210" x2="180" y2="198" stroke="#007aff" stroke-width="0.5" opacity=".3"/>
+  <line x1="160" y1="210" x2="170" y2="222" stroke="#34c759" stroke-width="0.5" opacity=".3"/>
+  <circle cx="620" cy="215" r="2" fill="#ff9500" opacity=".7"/>
+  <circle cx="640" cy="205" r="1.5" fill="#ff9500" opacity=".5"/>
+  <circle cx="635" cy="228" r="1" fill="#007aff" opacity=".6"/>
+  <line x1="620" y1="215" x2="640" y2="205" stroke="#ff9500" stroke-width="0.5" opacity=".3"/>
+</svg>
+<div class="hero-text">
+  <div class="hero-title">NYC Taxi trip analysis</div>
+  <div class="hero-sub">Apache Spark pipeline &middot; ITCS 6190 &middot; Gopi Bharath Makkena</div>
+</div>
 </div>
 
-<!-- ═══════════ PIPELINE ═══════════ -->
-<div class="page" id="page-pipeline">
-  <h2>Pipeline Architecture</h2>
-  <p class="section-desc">Click any stage to see implementation details. Run with <code>bash run.sh</code> or <code>make run</code>.</p>
-
-  <div class="pipeline">
-    <div class="pipe-stage" onclick="toggleStage(this,'d0')">
-      <div class="stage-num data">0</div>
-      <div>
-        <div class="stage-name">generate_sample.py</div>
-        <div class="stage-desc">Seed-reproducible synthetic dataset generation</div>
-      </div>
-      <span class="stage-tag">DATA</span>
-    </div>
-    <div class="stage-detail" id="d0">
-      Generates <strong>40,000 trip rows × 13 columns</strong> using <code>numpy</code> with seed=42.
-      Embeds a deterministic rush-hour signal (duration × 1.9 for 7–10, × 2.1 for 16–19) and ~2% dirty rows
-      (zero distance, negative fare) so the cleaning stage is meaningful.<br><br>
-      Output: <code>data/sample/yellow_tripdata_sample.csv</code> and <code>data/sample/taxi_zone_lookup.csv</code> (35 zones).
-    </div>
-
-    <div class="pipe-stage" onclick="toggleStage(this,'d1')">
-      <div class="stage-num">1</div>
-      <div>
-        <div class="stage-name">ingestion.py — Structured APIs</div>
-        <div class="stage-desc">Typed schema → CSV/Parquet ingestion → curated Parquet write</div>
-      </div>
-      <span class="stage-tag">STRUCTURED API</span>
-    </div>
-    <div class="stage-detail" id="d1">
-      Reads the trip CSV with an <strong>explicit <code>StructType</code></strong> (no inference — safer and faster at scale).
-      Supports real TLC Parquet files via <code>normalize_trips()</code> which projects drifting real-file schemas onto
-      the 13 canonical columns.<br><br>
-      Runs a data-quality profile: row count, null counts, zero/negative distance, negative fare.<br><br>
-      Output: <code>data/curated/trips/</code> (Parquet) — downstream stages avoid re-parsing CSV.
-    </div>
-
-    <div class="pipe-stage" onclick="toggleStage(this,'d2')">
-      <div class="stage-num">2</div>
-      <div>
-        <div class="stage-name">transformations.py — Structured APIs + Spark SQL</div>
-        <div class="stage-desc">Clean → feature engineering → broadcast join → SQL aggregations</div>
-      </div>
-      <span class="stage-tag">SQL</span>
-    </div>
-    <div class="stage-detail" id="d2">
-      <strong>Cleaning:</strong> removes zero-distance, negative-fare, &gt;3hr, zero-passenger rows. Computes <code>trip_duration_min</code> target.<br>
-      <strong>Feature engineering:</strong> <code>pickup_hour</code>, <code>pickup_dow</code>, <code>is_weekend</code>, <code>is_rush_hour</code>, <code>avg_speed_mph</code>.<br>
-      <strong>Broadcast join:</strong> attaches borough/zone from the 35-row lookup (no shuffle).<br>
-      <strong>Spark SQL:</strong> registers temp view and queries demand-by-hour + top-10 pickup zones.<br><br>
-      Output: <code>data/curated/features/</code> (Parquet) + <code>data/outputs/demand_by_hour/</code> + <code>data/outputs/top_pickup_zones/</code>.
-    </div>
-
-    <div class="pipe-stage" onclick="toggleStage(this,'d3')">
-      <div class="stage-num">3</div>
-      <div>
-        <div class="stage-name">streaming.py — Spark Structured Streaming</div>
-        <div class="stage-desc">12-file micro-batch simulation → stateful aggregation → sink</div>
-      </div>
-      <span class="stage-tag">STREAMING</span>
-    </div>
-    <div class="stage-detail" id="d3">
-      Splits the trip data into <strong>12 small CSV files</strong> in <code>data/stream_source/</code> to simulate an arriving feed.<br><br>
-      Streaming reader: <code>maxFilesPerTrigger=1</code> — processes one file per trigger.<br>
-      Aggregation: running trips + avg_fare + avg_duration per pickup hour, <code>outputMode("complete")</code>.<br>
-      <code>trigger(availableNow=True)</code> processes all micro-batches then terminates cleanly.<br><br>
-      The aggregation function is factored into <code>aggregate_zone_stream()</code> — a pure transformation testable on static DataFrames.
-    </div>
-
-    <div class="pipe-stage" onclick="toggleStage(this,'d4')">
-      <div class="stage-num">4</div>
-      <div>
-        <div class="stage-name">ml_pipeline.py — MLlib Regression</div>
-        <div class="stage-desc">StringIndexer + OHE + VectorAssembler → RandomForest / LinearRegression</div>
-      </div>
-      <span class="stage-tag">MLLIB</span>
-    </div>
-    <div class="stage-detail" id="d4">
-      ML Pipeline stages: <code>StringIndexer</code> → <code>OneHotEncoder</code> on pu_borough + payment_type →
-      <code>VectorAssembler</code> (6 numeric + 2 encoded) → regressor.<br><br>
-      Models: <strong>RandomForest</strong> (40 trees, depth 8, seed=42) as primary; <strong>LinearRegression</strong> as baseline.<br>
-      80/20 split (seed=42); evaluated with RMSE, MAE, R².<br><br>
-      RF RMSE: <span class="accent">3.87 min</span> · MAE: <span class="accent">2.63 min</span> · R²: <span class="accent">0.867</span>
-    </div>
-
-    <div class="pipe-stage" onclick="toggleStage(this,'d5')">
-      <div class="stage-num">5</div>
-      <div>
-        <div class="stage-name">eda.py — Spark SQL + Visualizations</div>
-        <div class="stage-desc">Summary stats, SQL queries, 5 charts saved to docs/figures/</div>
-      </div>
-      <span class="stage-tag">EDA</span>
-    </div>
-    <div class="stage-detail" id="d5">
-      Computes summary statistics, runs 4 Spark SQL queries (hourly demand, borough breakdown, payment type, top zones),
-      and produces 5 matplotlib charts saved to <code>docs/figures/</code>:<br>
-      trips_by_hour.png · duration_by_hour.png · trips_by_borough.png · hist_distance.png · hist_duration.png
-    </div>
-  </div>
+<div class="wrap">
+<div class="seg">
+  <button class="seg-btn on" onclick="go('predict',0)">Predict</button>
+  <button class="seg-btn" onclick="go('demand',1)">Demand</button>
+  <button class="seg-btn" onclick="go('ml',2)">ML</button>
+  <button class="seg-btn" onclick="go('stream',3)">Streaming</button>
+  <button class="seg-btn" onclick="go('pipeline',4)">Pipeline</button>
 </div>
 
-<!-- ═══════════ EDA ═══════════ -->
-<div class="page" id="page-eda">
-  <h2>Exploratory Data Analysis</h2>
-  <p class="section-desc">Spark SQL aggregations over 39,600 valid trips (40K raw minus ~2% dirty rows)</p>
-
-  <div style="margin-bottom:20px;">
-    <div class="card">
-      <div class="card-title">Trips &amp; Average Duration by Pickup Hour (Spark SQL)</div>
-      <div class="chart-wrap"><canvas id="hourChart"></canvas></div>
-    </div>
+<div class="page on" id="page-predict">
+  <div class="metrics">
+    <div class="metric"><div class="metric-n">40K</div><div class="metric-l">Sample trips</div><div class="metric-s">+3M real validated</div></div>
+    <div class="metric"><div class="metric-n">0.867</div><div class="metric-l">R² score</div><div class="metric-s">Random Forest</div></div>
+    <div class="metric"><div class="metric-n">3.87</div><div class="metric-l">RMSE (min)</div></div>
+    <div class="metric"><div class="metric-n">21%</div><div class="metric-l">Rush impact</div></div>
   </div>
-
-  <div class="grid-2" style="margin-bottom:20px">
-    <div class="card">
-      <div class="card-title">Trips by Borough</div>
-      <div class="chart-wrap-sm"><canvas id="boroughChart"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Avg Fare by Payment Type</div>
-      <div class="chart-wrap-sm"><canvas id="payChart"></canvas></div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-bottom:20px">
-    <div class="card-title">Hourly Demand & Duration Detail — Spark SQL Output</div>
-    <div style="overflow-x:auto;">
-      <table class="demand-table">
-        <thead>
-          <tr><th>Hour</th><th>Window</th><th>Trips</th><th>Avg Duration</th><th>Avg Fare</th></tr>
-        </thead>
-        <tbody id="demand-tbody"></tbody>
-      </table>
-    </div>
-  </div>
-
   <div class="card">
-    <div class="card-title">Top 10 Pickup Zones — Demand Hotspots (Spark SQL)</div>
-    <div class="zone-grid" id="zone-grid"></div>
+    <div class="card-hd">Trip parameters</div>
+    <div class="field">
+      <div class="field-top"><span class="field-label">Distance</span><span class="field-val" id="dv">3.0 miles</span></div>
+      <input type="range" id="p-dist" min="0.5" max="20" step="0.5" value="3" oninput="upd()">
+      <div class="range-labels"><span>0.5 mi</span><span>10 mi</span><span>20 mi</span></div>
+    </div>
+    <div class="field">
+      <div class="field-top"><span class="field-label">Pickup time</span><span class="field-val" id="hv">9:00 AM</span></div>
+      <input type="range" id="p-hour" min="0" max="23" step="1" value="9" oninput="upd()">
+      <div class="range-labels"><span>12 AM</span><span>12 PM</span><span>11 PM</span></div>
+    </div>
+    <div class="field">
+      <div class="field-top"><span class="field-label">Passengers</span><span class="field-val" id="paxv">1</span></div>
+      <input type="range" id="p-pax" min="1" max="6" step="1" value="1" oninput="upd()">
+      <div class="range-labels"><span>1</span><span>3</span><span>6</span></div>
+    </div>
+    <div class="field">
+      <div class="field-top"><span class="field-label">Borough</span></div>
+      <div class="chip-row" id="boro-chips">
+        <button class="chip on" onclick="selC(this,'boro')">Manhattan</button>
+        <button class="chip" onclick="selC(this,'boro')">Queens</button>
+        <button class="chip" onclick="selC(this,'boro')">Brooklyn</button>
+        <button class="chip" onclick="selC(this,'boro')">Bronx</button>
+        <button class="chip" onclick="selC(this,'boro')">Staten Island</button>
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-top"><span class="field-label">Day</span></div>
+      <div class="chip-row" id="dow-chips">
+        <button class="chip" onclick="selC(this,'dow')">Mon</button>
+        <button class="chip on" onclick="selC(this,'dow')">Tue</button>
+        <button class="chip" onclick="selC(this,'dow')">Wed</button>
+        <button class="chip" onclick="selC(this,'dow')">Thu</button>
+        <button class="chip" onclick="selC(this,'dow')">Fri</button>
+        <button class="chip" onclick="selC(this,'dow')">Sat</button>
+        <button class="chip" onclick="selC(this,'dow')">Sun</button>
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-top"><span class="field-label">Time window</span></div>
+      <div class="chip-row" id="win-chips">
+        <button class="chip rush" onclick="selC(this,'win')">Morning rush (7–10)</button>
+        <button class="chip on" onclick="selC(this,'win')">Midday (11–15)</button>
+        <button class="chip rush" onclick="selC(this,'win')">Evening rush (16–19)</button>
+        <button class="chip" onclick="selC(this,'win')">Late night (20–6)</button>
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-top"><span class="field-label">Payment</span></div>
+      <div class="chip-row">
+        <button class="chip on" onclick="selC(this,'pay')">Credit card</button>
+        <button class="chip" onclick="selC(this,'pay')">Cash</button>
+      </div>
+    </div>
+    <button class="predict-btn" onclick="predict()">Predict trip duration</button>
+  </div>
+  <div class="result" id="rbox">
+    <div class="result-num" id="rnum">—</div>
+    <div class="result-unit">estimated minutes</div>
+    <div class="result-factors" id="rfactors"></div>
+    <div class="fare-result" id="rfare" style="display:none">
+      <span class="fare-label">Estimated fare</span>
+      <span class="fare-val" id="rfareval">$0.00</span>
+    </div>
   </div>
 </div>
 
-<!-- ═══════════ STREAMING ═══════════ -->
-<div class="page" id="page-streaming">
-  <h2>Spark Structured Streaming</h2>
-  <p class="section-desc">Simulated real-time feed — 12 micro-batches — <code>trigger(availableNow=True)</code></p>
-
-  <div class="grid-2" style="margin-bottom:20px">
-    <div class="card">
-      <h3>Streaming Job Log</h3>
-      <div class="stream-log" id="stream-log">
-        <div class="log-line info">Spark Structured Streaming — Stage 3</div>
-        <div class="log-line">──────────────────────────────────────</div>
-      </div>
-      <div style="margin-top:12px;display:flex;gap:10px;">
-        <button class="predict-btn" onclick="runStreaming()" style="flex:1;font-size:12px;padding:9px;">▶ Replay Simulation</button>
-        <button onclick="clearLog()" style="background:var(--card2);border:1px solid var(--border);color:var(--muted);padding:9px 14px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px;">Clear</button>
-      </div>
-    </div>
-    <div class="card">
-      <h3>Final Streaming Aggregation</h3>
-      <div class="chart-wrap"><canvas id="streamChart"></canvas></div>
-    </div>
+<div class="page" id="page-demand">
+  <div class="insight-grid">
+    <div class="insight-card"><div class="insight-num">~10 min</div><div class="insight-label">Overnight (0–5 AM)</div></div>
+    <div class="insight-card"><div class="insight-num">~18.7 min</div><div class="insight-label">Morning rush (7–10)</div></div>
+    <div class="insight-card"><div class="insight-num">~12.3 min</div><div class="insight-label">Midday (11–15)</div></div>
+    <div class="insight-card"><div class="insight-num">~21.1 min</div><div class="insight-label">Evening rush (16–19)</div></div>
   </div>
-
   <div class="card">
-    <div class="card-title">Streaming vs Batch Comparison — Results Match ✓</div>
-    <div style="overflow-x:auto">
-      <table class="stream-table">
-        <thead>
-          <tr><th>Hour</th><th>Batch Trips</th><th>Stream Trips</th><th>Batch Avg Fare</th><th>Stream Avg Fare</th><th>Match?</th></tr>
-        </thead>
-        <tbody id="stream-compare"></tbody>
-      </table>
+    <div class="card-hd">Trips and avg duration by hour</div>
+    <div style="display:flex;gap:14px;margin-bottom:12px;font-size:11px;color:#6e6e73;flex-wrap:wrap">
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#b5d4f4;display:inline-block"></span>Off-peak</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#ff9500;display:inline-block"></span>Rush hour</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#34c759;display:inline-block"></span>Avg duration</span>
+    </div>
+    <div style="position:relative;width:100%;height:240px"><canvas id="hChart" role="img" aria-label="Trip counts and duration by hour">Rush hours show doubled duration with same distance.</canvas></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-hd">By borough</div>
+      <div style="position:relative;width:100%;height:190px"><canvas id="bChart" role="img" aria-label="Manhattan 84%, Queens 12%, Brooklyn 6%">Manhattan 84%, Queens 12%, Brooklyn 6%.</canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hd">Top pickup zones</div>
+      <div id="zlist"></div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════ ML ═══════════ -->
 <div class="page" id="page-ml">
-  <h2>MLlib — Trip Duration Regression</h2>
-  <p class="section-desc">Spark ML Pipeline: StringIndexer → OneHotEncoder → VectorAssembler → Regressor · 80/20 split (seed 42)</p>
-
-  <div class="grid-2" style="margin-bottom:20px">
-    <div class="model-card">
-      <div class="model-tag">Primary Model</div>
-      <div class="model-title">Random Forest Regressor</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:14px;">40 trees · max depth 8 · seed 42</div>
-      <div class="metric-row">
-        <div class="metric-box"><div class="metric-val">3.87</div><div class="metric-lbl">RMSE (min)</div></div>
-        <div class="metric-box"><div class="metric-val">2.63</div><div class="metric-lbl">MAE (min)</div></div>
-        <div class="metric-box"><div class="metric-val">0.867</div><div class="metric-lbl">R²</div></div>
+  <div class="model-row">
+    <div class="model-box">
+      <div class="model-tag">Primary</div>
+      <div class="model-name">Random Forest</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+        <div><div class="model-val">3.87</div><div class="model-stat">RMSE (min)</div></div>
+        <div><div class="model-val">2.63</div><div class="model-stat">MAE (min)</div></div>
+        <div><div class="model-val">0.867</div><div class="model-stat">R²</div></div>
       </div>
     </div>
-    <div class="model-card">
-      <div class="model-tag">Baseline</div>
-      <div class="model-title">Linear Regression</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:14px;">Default regularization · seed 42</div>
-      <div class="metric-row">
-        <div class="metric-box"><div class="metric-val" style="color:var(--muted)">3.89</div><div class="metric-lbl">RMSE (min)</div></div>
-        <div class="metric-box"><div class="metric-val" style="color:var(--muted)">2.94</div><div class="metric-lbl">MAE (min)</div></div>
-        <div class="metric-box"><div class="metric-val" style="color:var(--muted)">0.866</div><div class="metric-lbl">R²</div></div>
+    <div class="model-box">
+      <div class="model-tag" style="color:#aeaeb2">Baseline</div>
+      <div class="model-name">Linear Regression</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+        <div><div class="model-val" style="color:#6e6e73">3.89</div><div class="model-stat">RMSE (min)</div></div>
+        <div><div class="model-val" style="color:#6e6e73">2.94</div><div class="model-stat">MAE (min)</div></div>
+        <div><div class="model-val" style="color:#6e6e73">0.866</div><div class="model-stat">R²</div></div>
       </div>
     </div>
   </div>
-
-  <div class="grid-2" style="margin-bottom:20px">
-    <div class="card">
-      <div class="card-title">Random Forest Feature Importances</div>
-      <div id="importance-bars" style="margin-top:10px;"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Model Comparison (R²)</div>
-      <div class="chart-wrap-sm"><canvas id="modelChart"></canvas></div>
-    </div>
-  </div>
-
   <div class="card">
-    <div class="card-title">Predicted vs Actual Duration (Simulated — 200 test points)</div>
-    <div class="chart-wrap"><canvas id="scatterChart"></canvas></div>
+    <div class="card-hd">Feature importances</div>
+    <div id="imp"></div>
+  </div>
+  <div class="card">
+    <div class="card-hd">Key insight</div>
+    <p style="font-size:14px;color:#1d1d1f;line-height:1.7">Distance drives 78% of trip duration. Rush-hour status adds 16% — the same 3-mile trip takes 10 min at midnight and 21 min at 5 PM. A dispatcher using only distance would be systematically optimistic during peak hours.</p>
   </div>
 </div>
 
-<!-- ═══════════ PREDICT ═══════════ -->
-<div class="page" id="page-predict">
-  <h2>✨ Trip Duration Predictor</h2>
-  <p class="section-desc">Interactive simulation of the MLlib Random Forest model (distance + time features)</p>
-
-  <div class="grid-2">
+<div class="page" id="page-stream">
+  <div class="grid2">
     <div class="card">
-      <h3>Trip Parameters</h3>
-      <div class="predict-form">
-        <label>
-          Trip Distance
-          <input type="range" id="p-dist" min="0.3" max="15" step="0.1" value="3.0" oninput="updatePredictDisplay()">
-          <div class="range-val" id="dist-val">3.0 miles</div>
-        </label>
-        <label>
-          Pickup Hour (0–23)
-          <input type="range" id="p-hour" min="0" max="23" step="1" value="9" oninput="updatePredictDisplay()">
-          <div class="range-val" id="hour-val">09:00</div>
-        </label>
-        <label>
-          Pickup Borough
-          <select id="p-borough">
-            <option value="manhattan">Manhattan</option>
-            <option value="queens">Queens</option>
-            <option value="brooklyn">Brooklyn</option>
-          </select>
-        </label>
-        <label>
-          Day of Week
-          <select id="p-dow">
-            <option value="2">Monday</option>
-            <option value="3">Tuesday</option>
-            <option value="4">Wednesday</option>
-            <option value="5">Thursday</option>
-            <option value="6">Friday</option>
-            <option value="1">Sunday</option>
-            <option value="7">Saturday</option>
-          </select>
-        </label>
-        <button class="predict-btn" onclick="runPredict()">Predict Trip Duration</button>
-      </div>
+      <div class="card-hd">Streaming job log</div>
+      <div class="stream-log" id="slog"><span class="l-muted">Tap replay to simulate the streaming job</span></div>
+      <button class="replay-btn" onclick="replay()">&#9654; Replay simulation</button>
     </div>
     <div class="card">
-      <h3>Prediction Result</h3>
-      <div class="result-box" id="result-box">
-        <div class="result-duration" id="result-mins">—</div>
-        <div class="result-unit">estimated minutes</div>
-        <div class="result-breakdown" id="result-breakdown"></div>
-      </div>
-      <div id="predict-placeholder" style="color:var(--muted);font-size:13px;padding:30px 0;text-align:center;">
-        Set parameters and click Predict →
-      </div>
-
-      <div style="margin-top:20px;">
-        <div class="card-title">How the model works</div>
-        <div style="font-size:12px;color:var(--light);line-height:1.7;margin-top:8px;">
-          The Spark ML Pipeline uses <strong>RandomForestRegressor</strong> (40 trees, depth 8) trained on 31,369 trips.
-          Features: trip_distance (importance 78%), is_rush_hour (16%), pickup_hour (5%), plus categorical borough/payment encoding.
-          <br><br>
-          This interactive widget simulates the model formula:
-          <code>base_speed</code> × <code>congestion_multiplier</code> derived from the training patterns.
-        </div>
-      </div>
+      <div class="card-hd">Streamed trips per hour</div>
+      <div style="position:relative;width:100%;height:190px"><canvas id="sChart" role="img" aria-label="Streamed trip counts per hour">Matches batch SQL output.</canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd">How it works</div>
+    <div>
+      <div class="step-row"><div class="step-num">1</div><div><div class="step-title">Split sample into 12 CSV files</div><div class="step-sub">data/stream_source/batch_000.csv … batch_011.csv</div></div></div>
+      <div class="step-row"><div class="step-num">2</div><div><div class="step-title">Stream reader: one file per trigger</div><div class="step-sub">maxFilesPerTrigger=1 · outputMode=complete</div></div></div>
+      <div class="step-row"><div class="step-num">3</div><div><div class="step-title">Stateful aggregation per pickup hour</div><div class="step-sub">trips + avg_fare + avg_duration running total</div></div></div>
+      <div class="step-row"><div class="step-num" style="background:#e8f5e9;color:#34a853">4</div><div><div class="step-title">trigger(availableNow=True)</div><div class="step-sub">Processes all 12 batches then terminates cleanly. Matches batch SQL exactly.</div></div></div>
     </div>
   </div>
 </div>
 
-</main>
-
-<footer>
-  ITCS 6190 — Cloud Computing for Data Analysis · UNC Charlotte · Summer 2026 ·
-  Gopi Bharath Makkena · Apache Spark (local[*]) · Dataset: NYC TLC Yellow Taxi Trip Records
-</footer>
+<div class="page" id="page-pipeline">
+  <div class="card">
+    <div class="card-hd">End-to-end pipeline — tap any stage</div>
+    <div>
+      <div class="pipe-row" onclick="tog('pd0')"><div class="pipe-icon">💾</div><div style="flex:1"><div class="pipe-name">generate_sample.py</div><div class="pipe-desc">40K seeded synthetic trips + zone lookup</div><div class="pipe-detail" id="pd0">Generates 40,000 trips with seed=42. Embeds rush-hour signal (×1.9 for 7–10, ×2.1 for 16–19) and ~2% dirty rows.</div></div><span class="badge b-gray">Data</span></div>
+      <div class="pipe-row" onclick="tog('pd1')"><div class="pipe-icon">📋</div><div style="flex:1"><div class="pipe-name">ingestion.py</div><div class="pipe-desc">Typed-schema CSV → curated Parquet</div><div class="pipe-detail" id="pd1">Reads CSV with an explicit StructType. Supports real TLC Parquet via normalize_trips() for schema-drift tolerance. Writes data/curated/trips/.</div></div><span class="badge b-blue">Structured API</span></div>
+      <div class="pipe-row" onclick="tog('pd2')"><div class="pipe-icon">🔧</div><div style="flex:1"><div class="pipe-name">transformations.py</div><div class="pipe-desc">Clean + features + broadcast join + SQL</div><div class="pipe-detail" id="pd2">Removes bad rows. Derives pickup_hour, is_weekend, is_rush_hour. Broadcast-joins zone lookup. Queries demand-by-hour + top-10 zones via Spark SQL.</div></div><span class="badge b-blue">Spark SQL</span></div>
+      <div class="pipe-row" onclick="tog('pd3')"><div class="pipe-icon">▶️</div><div style="flex:1"><div class="pipe-name">streaming.py</div><div class="pipe-desc">12 micro-batch simulation → aggregation</div><div class="pipe-detail" id="pd3">Splits sample into 12 CSVs. maxFilesPerTrigger=1, outputMode=complete, trigger(availableNow=True). Pure aggregation function testable on static data.</div></div><span class="badge b-orange">Streaming</span></div>
+      <div class="pipe-row" onclick="tog('pd4')"><div class="pipe-icon">📊</div><div style="flex:1"><div class="pipe-name">ml_pipeline.py</div><div class="pipe-desc">RandomForest + LinearRegression pipeline</div><div class="pipe-detail" id="pd4">StringIndexer → OHE → VectorAssembler → regressor. RandomForest (40 trees, depth 8). 80/20 split seed=42. RMSE 3.87, R² 0.867.</div></div><span class="badge b-green">MLlib</span></div>
+    </div>
+  </div>
+</div>
+</div>
 
 <script>
-// ── Page navigation ──────────────────────────────────────────────────────
-function showPage(id, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  btn.classList.add('active');
-  initPage(id);
+const HD=[{h:0,t:385,d:9.85},{h:1,t:250,d:9.92},{h:2,t:170,d:10.0},{h:3,t:204,d:10.02},{h:4,t:277,d:9.69},{h:5,t:533,d:9.74},{h:6,t:986,d:12.07},{h:7,t:2276,d:18.81},{h:8,t:2755,d:18.48},{h:9,t:2141,d:18.48},{h:10,t:1745,d:18.92},{h:11,t:1902,d:12.53},{h:12,t:2162,d:12.37},{h:13,t:1960,d:12.19},{h:14,t:1918,d:12.07},{h:15,t:2282,d:12.36},{h:16,t:3047,d:20.8},{h:17,t:3093,d:21.5},{h:18,t:2741,d:21.21},{h:19,t:2272,d:20.93},{h:20,t:2076,d:12.42},{h:21,t:1902,d:12.42},{h:22,t:1614,d:12.15},{h:23,t:909,d:12.47}];
+const isRush=h=>(h>=7&&h<=10)||(h>=16&&h<=19);
+const inited={};
+const HRS=['12 AM','1 AM','2 AM','3 AM','4 AM','5 AM','6 AM','7 AM','8 AM','9 AM','10 AM','11 AM','12 PM','1 PM','2 PM','3 PM','4 PM','5 PM','6 PM','7 PM','8 PM','9 PM','10 PM','11 PM'];
+function go(id,i){document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.seg-btn').forEach((b,j)=>b.classList.toggle('on',j===i));document.getElementById('page-'+id).classList.add('on');if(!inited[id]){inited[id]=1;initPage(id);}}
+function initPage(id){if(id==='demand')bD();if(id==='ml')bML();if(id==='stream')bS();}
+function selC(btn){btn.closest('.chip-row').querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));btn.classList.add('on');}
+function tog(id){document.getElementById(id).classList.toggle('on');}
+function upd(){
+  const d=parseFloat(document.getElementById('p-dist').value);
+  const h=parseInt(document.getElementById('p-hour').value);
+  const pax=parseInt(document.getElementById('p-pax').value);
+  document.getElementById('dv').textContent=d.toFixed(1)+' miles';
+  document.getElementById('hv').textContent=HRS[h]+(isRush(h)?' — rush hour':'');
+  document.getElementById('paxv').textContent=pax;
 }
-const initialized = {};
-function initPage(id) {
-  if (initialized[id]) return;
-  initialized[id] = true;
-  if (id === 'eda')       initEDA();
-  if (id === 'streaming') initStreaming();
-  if (id === 'ml')        initML();
+function predict(){
+  const d=parseFloat(document.getElementById('p-dist').value);
+  const h=parseInt(document.getElementById('p-hour').value);
+  const pax=parseInt(document.getElementById('p-pax').value);
+  const boro=document.querySelector('#boro-chips .chip.on')?.textContent||'Manhattan';
+  const dow=document.querySelector('#dow-chips .chip.on')?.textContent||'Tue';
+  const win=document.querySelector('#win-chips .chip.on')?.textContent||'Midday';
+  const rush=isRush(h)||win.includes('rush');
+  const weekend=dow==='Sat'||dow==='Sun';
+  const bp={Manhattan:1,Queens:1.04,Brooklyn:1.02,Bronx:1.06,'Staten Island':1.08};
+  let dur=d*3.48*(bp[boro]||1);
+  if(rush)dur*=1.94;else if(win.includes('Late'))dur*=0.92;
+  if(weekend&&!rush)dur*=0.93;
+  if(pax>=5)dur*=1.03;
+  const result=Math.max(1.5,dur+(Math.random()-.5)*1.2);
+  const fare=Math.max(3.5,result*0.72+d*1.1+2.5+(rush?3:0));
+  document.getElementById('rnum').textContent=result.toFixed(1);
+  const factors=[{l:'Distance',v:d.toFixed(1)+' mi'},{l:'Time',v:HRS[h]+(isRush(h)?' (rush)':'')},{l:'Borough',v:boro},{l:'Day',v:weekend?'Weekend':'Weekday'},{l:'Passengers',v:pax}];
+  document.getElementById('rfactors').innerHTML=factors.map(f=>`<div class="factor-row"><span class="factor-label">${f.l}</span><span class="factor-val">${f.v}</span></div>`).join('');
+  document.getElementById('rfare').style.display='flex';
+  document.getElementById('rfareval').textContent='$'+fare.toFixed(2);
 }
-
-// ── Pipeline accordion ───────────────────────────────────────────────────
-function toggleStage(el, detailId) {
-  document.querySelectorAll('.pipe-stage').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.stage-detail').forEach(d => d.classList.remove('show'));
-  const detail = document.getElementById(detailId);
-  if (!detail.classList.contains('show')) {
-    el.classList.add('active');
-    detail.classList.add('show');
-  }
+function bD(){
+  new Chart(document.getElementById('hChart'),{data:{labels:HD.map(d=>d.h),datasets:[{type:'bar',label:'Trips',data:HD.map(d=>d.t),backgroundColor:HD.map(d=>isRush(d.h)?'#ff9500':'#b5d4f4'),yAxisID:'y',order:2},{type:'line',label:'Avg dur',data:HD.map(d=>d.d),borderColor:'#34c759',backgroundColor:'rgba(52,199,89,.08)',yAxisID:'y2',order:1,tension:0.4,pointRadius:0,borderWidth:2.5,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6e6e73',font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}},y:{ticks:{color:'#6e6e73'},grid:{color:'rgba(0,0,0,.04)'}},y2:{position:'right',ticks:{color:'#34c759'},grid:{display:false}}}}});
+  new Chart(document.getElementById('bChart'),{type:'doughnut',data:{labels:['Manhattan 84%','Queens 12%','Brooklyn 6%'],datasets:[{data:[32845,4515,2240],backgroundColor:['#007aff','#34c759','#ff9500'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#6e6e73',font:{size:11},boxWidth:10,padding:10}}}}});
+  const zones=[['Times Sq / Theatre District','Manhattan',2324],['Penn Station','Manhattan',2240],['Midtown Center','Manhattan',2201],['JFK Airport','Queens',1452],['LaGuardia Airport','Queens',1345]];
+  document.getElementById('zlist').innerHTML=zones.map(([n,b,t],i)=>`<div class="zone-item"><div class="zone-rank">${i+1}</div><div style="flex:1"><div class="zone-name">${n}</div><div class="zone-boro">${b}</div></div><div class="zone-trips">${t.toLocaleString()}</div></div>`).join('');
 }
-
-// ── Data ─────────────────────────────────────────────────────────────────
-const hourData = [
-  {h:0,t:385,dur:9.85,fare:11.62},{h:1,t:250,dur:9.92,fare:11.63},
-  {h:2,t:170,dur:10.0,fare:11.75},{h:3,t:204,dur:10.02,fare:11.35},
-  {h:4,t:277,dur:9.69,fare:10.94},{h:5,t:533,dur:9.74,fare:11.33},
-  {h:6,t:986,dur:12.07,fare:12.12},{h:7,t:2276,dur:18.81,fare:14.46},
-  {h:8,t:2755,dur:18.48,fare:14.52},{h:9,t:2141,dur:18.48,fare:14.43},
-  {h:10,t:1745,dur:18.92,fare:14.84},{h:11,t:1902,dur:12.53,fare:12.38},
-  {h:12,t:2162,dur:12.37,fare:12.32},{h:13,t:1960,dur:12.19,fare:12.24},
-  {h:14,t:1918,dur:12.07,fare:12.12},{h:15,t:2282,dur:12.36,fare:12.28},
-  {h:16,t:3047,dur:20.8,fare:15.07},{h:17,t:3093,dur:21.5,fare:15.45},
-  {h:18,t:2741,dur:21.21,fare:15.4},{h:19,t:2272,dur:20.93,fare:15.28},
-  {h:20,t:2076,dur:12.42,fare:12.35},{h:21,t:1902,dur:12.42,fare:12.4},
-  {h:22,t:1614,dur:12.15,fare:12.19},{h:23,t:909,dur:12.47,fare:12.46},
-];
-const isRush = h => (h>=7&&h<=10)||(h>=16&&h<=19);
-const zoneData = [
-  {name:"Times Sq",boro:"Manhattan",trips:2324},
-  {name:"Penn Station",boro:"Manhattan",trips:2240},
-  {name:"Midtown Ctr",boro:"Manhattan",trips:2201},
-  {name:"JFK Airport",boro:"Queens",trips:1452},
-  {name:"LaGuardia",boro:"Queens",trips:1345},
-  {name:"Lincoln Sq E",boro:"Manhattan",trips:1200},
-  {name:"Clinton East",boro:"Manhattan",trips:1194},
-  {name:"Murray Hill",boro:"Manhattan",trips:1183},
-  {name:"Upper East S",boro:"Manhattan",trips:1175},
-  {name:"East Chelsea",boro:"Manhattan",trips:1159},
-];
-
-// ── EDA page ─────────────────────────────────────────────────────────────
-function initEDA() {
-  // Hourly chart
-  const colors = hourData.map(d => isRush(d.h) ? '#F5A623' : '#1E5A7A');
-  new Chart(document.getElementById('hourChart'), {
-    type: 'bar',
-    data: {
-      labels: hourData.map(d => d.h + ':00'),
-      datasets: [
-        { label: 'Trips', data: hourData.map(d => d.t), backgroundColor: colors, yAxisID: 'y', order: 2 },
-        { label: 'Avg Duration (min)', data: hourData.map(d => d.dur), borderColor: '#00C9A7',
-          backgroundColor: 'rgba(0,201,167,.12)', type: 'line', yAxisID: 'y2', order: 1,
-          tension: 0.4, pointRadius: 3 },
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#8899AA', font: { size: 11 } } },
-        tooltip: { callbacks: { title: ctx => 'Hour ' + ctx[0].label } } },
-      scales: {
-        x: { ticks: { color: '#8899AA', font: { size: 10 } }, grid: { color: '#1E2D42' } },
-        y: { ticks: { color: '#8899AA' }, grid: { color: '#1E2D42' }, title: { display: true, text: 'Trips', color: '#8899AA', font: { size: 11 } } },
-        y2: { position: 'right', ticks: { color: '#00C9A7' }, grid: { display: false },
-          title: { display: true, text: 'Avg Duration (min)', color: '#00C9A7', font: { size: 11 } } }
-      }
-    }
-  });
-
-  // Borough
-  new Chart(document.getElementById('boroughChart'), {
-    type: 'doughnut',
-    data: {
-      labels: ['Manhattan', 'Queens', 'Brooklyn'],
-      datasets: [{ data: [32845, 4515, 2240],
-        backgroundColor: ['#F5A623', '#00C9A7', '#5B8DB8'],
-        borderColor: '#131929', borderWidth: 2 }]
-    },
-    options: { responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { color: '#8899AA', font: { size: 11 } } } } }
-  });
-
-  // Payment
-  new Chart(document.getElementById('payChart'), {
-    type: 'bar',
-    data: {
-      labels: ['Card (type 1)', 'Cash (type 2)'],
-      datasets: [
-        { label: 'Avg Fare ($)', data: [13.62, 13.58], backgroundColor: '#F5A623' },
-        { label: 'Avg Tip ($)',  data: [2.08, 0.00],  backgroundColor: '#00C9A7' },
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#8899AA', font: { size: 11 } } } },
-      scales: { x: { ticks: { color: '#8899AA' }, grid: { color: '#1E2D42' } },
-                y: { ticks: { color: '#8899AA' }, grid: { color: '#1E2D42' } } }
-    }
-  });
-
-  // Demand table
-  const windows = [null,null,null,null,null,null,'Early AM','Morning Rush','Morning Rush','Morning Rush','Morning Rush','Midday','Midday','Midday','Midday','Midday','Evening Rush','Evening Rush','Evening Rush','Evening Rush','Late Evening','Late Evening','Late Evening','Late Evening'];
-  const tbody = document.getElementById('demand-tbody');
-  hourData.forEach(d => {
-    const tr = document.createElement('tr');
-    if (isRush(d.h)) tr.classList.add('rush-row');
-    tr.innerHTML = `<td>${String(d.h).padStart(2,'0')}:00</td><td>${windows[d.h]||'Overnight'}</td><td>${d.t.toLocaleString()}</td><td>${d.dur} min</td><td>$${d.fare}</td>`;
-    tbody.appendChild(tr);
-  });
-
-  // Zone cells
-  const maxTrips = zoneData[0].trips;
-  const grid = document.getElementById('zone-grid');
-  zoneData.forEach((z, i) => {
-    const pct = z.trips / maxTrips;
-    const alpha = Math.round(40 + pct * 160);
-    const hex = alpha.toString(16).padStart(2,'0');
-    const cell = document.createElement('div');
-    cell.className = 'zone-cell';
-    cell.style.borderColor = `#F5A623${hex}`;
-    cell.innerHTML = `<div class="zone-trips" style="color:${i<3?'#F5A623':'#D4E0EC'}">${z.trips.toLocaleString()}</div><div class="zone-name">${z.name}<br><span style="color:#4A6A8A">${z.boro}</span></div>`;
-    grid.appendChild(cell);
-  });
+function bML(){
+  const feats=[['trip_distance',78.1,'#ff9500'],['is_rush_hour',16.3,'#ff9500'],['pickup_hour',4.7,'#34c759'],['passenger_count',0.3,'#d1d1d6'],['pickup_dow',0.3,'#d1d1d6'],['pu_borough',0.06,'#d1d1d6'],['payment_type',0.05,'#d1d1d6']];
+  document.getElementById('imp').innerHTML=feats.map(([n,v,c])=>`<div class="imp-row"><div class="imp-name">${n}</div><div class="imp-track"><div class="imp-fill" style="width:${v}%;background:${c}"></div></div><div class="imp-pct">${v.toFixed(1)}%</div></div>`).join('');
 }
-
-// ── Streaming page ────────────────────────────────────────────────────────
-let streamingInProgress = false;
-function initStreaming() {
-  drawStreamChart();
-  buildStreamCompare();
+function bS(){
+  new Chart(document.getElementById('sChart'),{type:'line',data:{labels:HD.map(d=>d.h),datasets:[{label:'Streamed trips',data:HD.map(d=>d.t),borderColor:'#007aff',backgroundColor:'rgba(0,122,255,.08)',tension:0.4,fill:true,pointRadius:0,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6e6e73',font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}},y:{ticks:{color:'#6e6e73'},grid:{color:'rgba(0,0,0,.04)'}}}}});
 }
-
-function drawStreamChart() {
-  new Chart(document.getElementById('streamChart'), {
-    type: 'line',
-    data: {
-      labels: hourData.map(d => d.h + ':00'),
-      datasets: [
-        { label: 'Batch Trips', data: hourData.map(d => d.t), borderColor: '#F5A623', backgroundColor: 'rgba(245,166,35,.1)', tension: 0.4, fill: true },
-        { label: 'Streamed Trips', data: hourData.map(d => d.t + Math.round((Math.random()-0.5)*30)), borderColor: '#00C9A7', backgroundColor: 'rgba(0,201,167,.08)', tension: 0.4, borderDash:[4,3] },
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#8899AA', font: { size: 11 } } } },
-      scales: {
-        x: { ticks: { color: '#8899AA', font: { size: 10 } }, grid: { color: '#1E2D42' } },
-        y: { ticks: { color: '#8899AA' }, grid: { color: '#1E2D42' } }
-      }
-    }
-  });
+let streaming=false;
+async function replay(){
+  if(streaming)return;streaming=true;
+  const log=document.getElementById('slog');log.innerHTML='';
+  const lines=[['l-info','Spark Structured Streaming — stage 3'],['l-muted','Splitting sample into 12 micro-batch files...'],['l-muted','']];
+  for(let i=0;i<12;i++)lines.push(['l-batch',`[batch ${i}] batch_${String(i).padStart(3,'0')}.csv — ${Math.round(3300+(Math.random()-.5)*100)} rows`]);
+  lines.push(['l-muted',''],['l-info','All 12 batches complete — batchId: 11'],['l-done','Output matches batch SQL exactly ✓']);
+  for(const[c,t]of lines){await new Promise(r=>setTimeout(r,65));const d=document.createElement('div');d.className=c;d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight;}
+  streaming=false;
 }
-
-function buildStreamCompare() {
-  const tbody = document.getElementById('stream-compare');
-  [0,7,8,9,11,16,17,18,22].forEach(h => {
-    const d = hourData[h];
-    const sdiff = Math.round((Math.random()-.5)*15);
-    const fdiff = ((Math.random()-.5)*.08).toFixed(2);
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${String(h).padStart(2,'0')}:00</td><td>${d.t.toLocaleString()}</td><td>${(d.t+sdiff).toLocaleString()}</td><td>$${d.fare}</td><td>$${(parseFloat(d.fare)+parseFloat(fdiff)).toFixed(2)}</td><td style="color:#7FCC7F;font-weight:700">✓</td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-async function runStreaming() {
-  if (streamingInProgress) return;
-  streamingInProgress = true;
-  const log = document.getElementById('stream-log');
-  log.innerHTML = '';
-  const lines = [
-    ['info', '=== Spark Structured Streaming — Stage 3 ==='],
-    ['', 'Preparing stream source: splitting sample into 12 CSV files'],
-    ['', 'data/stream_source/batch_000.csv ... batch_011.csv'],
-    ['', ''],
-    ['info', 'Starting streaming query: zone_stream'],
-    ['', 'Schema: trip_schema (13 canonical columns)'],
-    ['', 'maxFilesPerTrigger=1 | outputMode=complete'],
-    ['', 'trigger=availableNow | sink=memory'],
-    ['', ''],
-  ];
-  for (let i = 0; i < 12; i++) {
-    lines.push(['batch', `[Micro-batch ${i}] Processing batch_${String(i).padStart(3,'0')}.csv`]);
-    lines.push(['', `  Trips in batch: ~${Math.round(39600/12 + (Math.random()-.5)*50)}`]);
-    lines.push(['', `  Aggregated ${24} pickup_hour buckets`]);
-    lines.push(['', '']);
-  }
-  lines.push(['info', `Query completed — batchId: 11`]);
-  lines.push(['done', 'Micro-batches processed: 12']);
-  lines.push(['done', 'Wrote streaming summary -> data/outputs/streaming_hourly_summary/']);
-  lines.push(['done', '✓ Streaming aggregation matches batch SQL output']);
-
-  for (const [cls, text] of lines) {
-    await new Promise(r => setTimeout(r, 60));
-    const div = document.createElement('div');
-    div.className = 'log-line ' + cls;
-    div.textContent = text;
-    log.appendChild(div);
-    log.scrollTop = log.scrollHeight;
-  }
-  streamingInProgress = false;
-}
-
-function clearLog() {
-  document.getElementById('stream-log').innerHTML = '<div class="log-line info">Ready — click Replay to simulate</div>';
-}
-
-// ── ML page ───────────────────────────────────────────────────────────────
-function initML() {
-  // Feature importance bars
-  const features = [
-    { name: 'trip_distance',    imp: 0.7813, color: '#F5A623' },
-    { name: 'is_rush_hour',     imp: 0.1628, color: '#F5A623' },
-    { name: 'pickup_hour',      imp: 0.0466, color: '#00C9A7' },
-    { name: 'passenger_count',  imp: 0.0029, color: '#5B8DB8' },
-    { name: 'pickup_dow',       imp: 0.0029, color: '#5B8DB8' },
-    { name: 'pu_borough (OHE)', imp: 0.0006, color: '#5B8DB8' },
-    { name: 'payment_type(OHE)',imp: 0.0005, color: '#5B8DB8' },
-    { name: 'is_weekend',       imp: 0.0005, color: '#5B8DB8' },
-  ];
-  const container = document.getElementById('importance-bars');
-  features.forEach(f => {
-    container.innerHTML += `
-      <div class="imp-bar-row">
-        <div class="imp-name">${f.name}</div>
-        <div class="imp-track"><div class="imp-fill" style="width:${f.imp*100}%;background:${f.color}"></div></div>
-        <div class="imp-pct">${(f.imp*100).toFixed(1)}%</div>
-      </div>`;
-  });
-
-  // Model comparison
-  new Chart(document.getElementById('modelChart'), {
-    type: 'bar',
-    data: {
-      labels: ['Random Forest', 'Linear Regression'],
-      datasets: [{ label: 'R² Score', data: [0.867, 0.866], backgroundColor: ['#00C9A7','#5B8DB8'] }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      indexAxis: 'y',
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { min: 0.85, max: 0.88, ticks: { color: '#8899AA' }, grid: { color: '#1E2D42' } },
-        y: { ticks: { color: '#D4E0EC', font: { size: 12 } }, grid: { display: false } }
-      }
-    }
-  });
-
-  // Scatter chart (simulated predictions)
-  const actuals = [], preds = [];
-  for (let i = 0; i < 200; i++) {
-    const dist = 0.5 + Math.random() * 14;
-    const h = Math.floor(Math.random() * 24);
-    const rush = isRush(h);
-    const base = dist * 3.5 + (rush ? 9 : 2) + (Math.random() - 0.5) * 6;
-    const actual = Math.max(1, base);
-    const pred = actual + (Math.random() - 0.5) * 5;
-    actuals.push(actual.toFixed(1));
-    preds.push(pred.toFixed(1));
-  }
-  new Chart(document.getElementById('scatterChart'), {
-    type: 'scatter',
-    data: {
-      datasets: [
-        {
-          label: 'Predictions',
-          data: actuals.map((a, i) => ({ x: parseFloat(a), y: parseFloat(preds[i]) })),
-          backgroundColor: 'rgba(0,201,167,0.45)', pointRadius: 3
-        },
-        {
-          label: 'Perfect fit',
-          data: [{x:0,y:0},{x:100,y:100}],
-          borderColor: '#F5A623', type: 'line', pointRadius: 0, borderDash: [6,3]
-        }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#8899AA', font: { size: 11 } } } },
-      scales: {
-        x: { ticks: { color: '#8899AA' }, grid: { color: '#1E2D42' }, title: { display:true, text:'Actual (min)', color:'#8899AA' } },
-        y: { ticks: { color: '#8899AA' }, grid: { color: '#1E2D42' }, title: { display:true, text:'Predicted (min)', color:'#8899AA' } }
-      }
-    }
-  });
-}
-
-// ── Predictor ──────────────────────────────────────────────────────────────
-function updatePredictDisplay() {
-  const dist = parseFloat(document.getElementById('p-dist').value);
-  const hour = parseInt(document.getElementById('p-hour').value);
-  document.getElementById('dist-val').textContent = dist.toFixed(1) + ' miles';
-  document.getElementById('hour-val').textContent = String(hour).padStart(2,'0') + ':00';
-}
-
-function runPredict() {
-  const dist = parseFloat(document.getElementById('p-dist').value);
-  const hour = parseInt(document.getElementById('p-hour').value);
-  const borough = document.getElementById('p-borough').value;
-  const dow = parseInt(document.getElementById('p-dow').value);
-
-  const rush = isRush(hour);
-  const weekend = dow === 1 || dow === 7;
-
-  // Simulate RF model with learned patterns from training
-  let base = dist * 3.48;
-  if (rush) base *= 1.94;
-  else if (hour >= 6 && hour <= 6) base *= 1.22;
-  else if (hour >= 20 || hour <= 5) base *= 0.97;
-  if (borough === 'queens') base *= 1.04;
-  if (weekend && !rush) base *= 0.94;
-
-  // Small noise for realism
-  const noise = (Math.random() - 0.5) * 1.5;
-  const predicted = Math.max(1.5, base + noise);
-
-  const resultBox = document.getElementById('result-box');
-  const placeholder = document.getElementById('predict-placeholder');
-  resultBox.classList.add('show');
-  placeholder.style.display = 'none';
-  document.getElementById('result-mins').textContent = predicted.toFixed(1);
-
-  const factors = [];
-  factors.push(`Distance: ${dist.toFixed(1)} mi → base ~${(dist*3.48).toFixed(0)} min`);
-  if (rush) factors.push(`Rush hour (${String(hour).padStart(2,'0')}:00) → +94% congestion multiplier`);
-  if (weekend) factors.push('Weekend → slight demand reduction (-6%)');
-  if (borough !== 'manhattan') factors.push(`Borough: ${borough} → +4% adjustment`);
-
-  document.getElementById('result-breakdown').innerHTML =
-    factors.map(f => `• ${f}`).join('<br>');
-}
-
-// ── Init ──────────────────────────────────────────────────────────────────
-updatePredictDisplay();
+upd();
 </script>
-</body>
-</html>
+</body></html>
