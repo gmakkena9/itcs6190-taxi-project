@@ -1,0 +1,36 @@
+LocationID,Borough,Zone,service_zone
+4,Manhattan,Alphabet City,Yellow Zone
+13,Manhattan,Battery Park City,Yellow Zone
+24,Manhattan,Bloomingdale,Yellow Zone
+41,Manhattan,Central Harlem,Boro Zone
+43,Manhattan,Central Park,Yellow Zone
+48,Manhattan,Clinton East,Yellow Zone
+50,Manhattan,Clinton West,Yellow Zone
+68,Manhattan,East Chelsea,Yellow Zone
+79,Manhattan,East Village,Yellow Zone
+90,Manhattan,Flatiron,Yellow Zone
+100,Manhattan,Garment District,Yellow Zone
+107,Manhattan,Gramercy,Yellow Zone
+113,Manhattan,Greenwich Village North,Yellow Zone
+125,Manhattan,Hudson Sq,Yellow Zone
+132,Queens,JFK Airport,Airports
+138,Queens,LaGuardia Airport,Airports
+140,Manhattan,Lenox Hill East,Yellow Zone
+142,Manhattan,Lincoln Square East,Yellow Zone
+161,Manhattan,Midtown Center,Yellow Zone
+163,Manhattan,Midtown North,Yellow Zone
+170,Manhattan,Murray Hill,Yellow Zone
+186,Manhattan,Penn Station/Madison Sq West,Yellow Zone
+230,Manhattan,Times Sq/Theatre District,Yellow Zone
+236,Manhattan,Upper East Side North,Yellow Zone
+237,Manhattan,Upper East Side South,Yellow Zone
+162,Manhattan,Midtown East,Yellow Zone
+114,Manhattan,Greenwich Village South,Yellow Zone
+158,Manhattan,Meatpacking/West Village West,Yellow Zone
+33,Brooklyn,Brooklyn Heights,Boro Zone
+256,Brooklyn,Williamsburg (South Side),Boro Zone
+255,Brooklyn,Williamsburg (North Side),Boro Zone
+61,Brooklyn,Crown Heights North,Boro Zone
+7,Queens,Astoria,Boro Zone
+82,Queens,Elmhurst,Boro Zone
+260,Queens,Woodside,Boro Zone

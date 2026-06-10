@@ -1,0 +1,12 @@
+*.pyc
+__pycache__/
+.env
+.DS_Store
+.ipynb_checkpoints/
+# Generated pipeline artifacts (kept out of version control)
+data/curated/
+data/outputs/
+data/stream_source/
+data/_checkpoints/
+# Real TLC files for the validation run (downloaded locally, not committed)
+data/real/
