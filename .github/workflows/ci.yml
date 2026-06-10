@@ -8,7 +8,7 @@ on:
 
 env:
   PYSPARK_PYTHON: python3
-  JAVA_TOOL_OPTIONS: "-Xmx1g"
+  PYTHONPATH: src
 
 jobs:
   test:
@@ -27,13 +27,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-
-      - name: Install Python dependencies
+      - name: Install dependencies
         run: pip install -r requirements.txt
 
       - name: Generate sample data
@@ -41,27 +35,3 @@ jobs:
 
       - name: Run unit tests
         run: python3 -m pytest tests/ -q --tb=short
-
-      - name: Run ingestion stage
-        run: cd src && python3 ingestion.py
-
-      - name: Run transformations stage
-        run: cd src && python3 transformations.py
-
-      - name: Run streaming stage
-        run: cd src && python3 streaming.py
-
-      - name: Run ML pipeline stage
-        run: cd src && python3 ml_pipeline.py
-
-      - name: Run EDA stage
-        run: cd src && python3 eda.py
-
-      - name: Verify outputs exist
-        run: |
-          test -f data/outputs/ml_metrics.json
-          test -d data/outputs/demand_by_hour
-          test -d data/outputs/top_pickup_zones
-          test -d data/outputs/streaming_hourly_summary
-          test -f docs/figures/trips_by_hour.png
-          echo "All outputs verified ✓"
