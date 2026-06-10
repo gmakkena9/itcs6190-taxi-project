@@ -1,0 +1,11 @@
+pu_borough,pu_zone,trips,avg_duration_min,avg_fare
+Manhattan,Times Sq/Theatre District,2298,16.06,13.67
+Manhattan,Penn Station/Madison Sq West,2218,15.96,13.68
+Manhattan,Midtown Center,2172,16.07,13.83
+Queens,JFK Airport,1435,16.34,13.86
+Queens,LaGuardia Airport,1326,15.53,13.46
+Manhattan,Clinton East,1185,15.88,13.67
+Manhattan,Lincoln Square East,1182,16.26,13.86
+Manhattan,Murray Hill,1172,16.21,13.73
+Manhattan,Upper East Side South,1166,16.08,13.81
+Manhattan,East Chelsea,1147,15.69,13.53

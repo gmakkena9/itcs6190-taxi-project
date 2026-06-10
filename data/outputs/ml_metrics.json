@@ -1,0 +1,46 @@
+{
+  "random_forest": {
+    "rmse": 3.8739,
+    "mae": 2.6276,
+    "r2": 0.8672
+  },
+  "linear_regression": {
+    "rmse": 3.893,
+    "mae": 2.9407,
+    "r2": 0.8659
+  },
+  "rf_feature_importances": [
+    {
+      "feature": "trip_distance",
+      "importance": 0.7813
+    },
+    {
+      "feature": "is_rush_hour",
+      "importance": 0.1628
+    },
+    {
+      "feature": "pickup_hour",
+      "importance": 0.0466
+    },
+    {
+      "feature": "passenger_count",
+      "importance": 0.0029
+    },
+    {
+      "feature": "pickup_dow",
+      "importance": 0.0029
+    },
+    {
+      "feature": "pu_borough_ohe",
+      "importance": 0.0006
+    },
+    {
+      "feature": "payment_type_ohe",
+      "importance": 0.0005
+    },
+    {
+      "feature": "is_weekend",
+      "importance": 0.0005
+    }
+  ]
+}
