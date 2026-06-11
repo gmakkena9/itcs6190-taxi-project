@@ -7,220 +7,252 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;background:#f2f2f7;color:#1d1d1f;min-height:100vh}
-.wrap{max-width:800px;margin:0 auto;padding:0 16px 80px}
-.hero{width:100%;border-radius:0 0 20px 20px;overflow:hidden;margin-bottom:18px;position:relative;max-width:800px;margin-left:auto;margin-right:auto}
-.hero svg{display:block;width:100%}
-.hero-text{position:absolute;bottom:0;left:0;right:0;padding:12px 20px;background:linear-gradient(transparent,rgba(10,15,40,.88))}
-.hero-title{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.3px}
-.hero-sub{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px}
+html,body{width:100%;min-height:100vh}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;background:#f2f2f7;color:#1d1d1f}
+.hero{width:100%;overflow:hidden;position:relative;display:block}
+.hero svg{display:block;width:100%;height:auto}
+.hero-text{position:absolute;bottom:0;left:0;right:0;padding:14px 24px;background:linear-gradient(transparent,rgba(8,12,32,.92))}
+.hero-title{font-size:24px;font-weight:700;color:#fff;letter-spacing:-.3px}
+.hero-sub{font-size:12px;color:rgba(255,255,255,.6);margin-top:3px}
+.container{width:100%;max-width:100%;padding:16px 20px 100px}
 .seg{display:flex;background:#e5e5ea;border-radius:11px;padding:3px;gap:2px;margin-bottom:18px}
-.seg-btn{flex:1;padding:7px 4px;border:none;border-radius:9px;font-size:12px;font-weight:400;color:#6e6e73;background:none;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
-.seg-btn.on{background:#fff;color:#1d1d1f;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.13)}
+.seg-btn{flex:1;padding:8px 4px;border:none;border-radius:9px;font-size:13px;font-weight:400;color:#6e6e73;background:none;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.seg-btn.on{background:#fff;color:#1d1d1f;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.12)}
 .page{display:none}.page.on{display:block}
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
-@media(max-width:560px){.metrics{grid-template-columns:repeat(2,1fr)}}
-.metric{background:#fff;border-radius:14px;padding:12px}
-.metric-n{font-size:24px;font-weight:700;color:#1d1d1f;line-height:1}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:600px){.metrics{grid-template-columns:repeat(2,1fr)}}
+.metric{background:#fff;border-radius:14px;padding:14px}
+.metric-n{font-size:26px;font-weight:700;color:#1d1d1f;line-height:1}
 .metric-l{font-size:11px;color:#6e6e73;margin-top:4px}
-.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:10px}
-.card-hd{font-size:11px;font-weight:600;color:#6e6e73;margin-bottom:12px;letter-spacing:.06em;text-transform:uppercase}
-.field{margin-bottom:16px}
-.field-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
-.field-label{font-size:14px;font-weight:500;color:#1d1d1f}
-.field-val{font-size:13px;color:#6e6e73;font-weight:500}
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:12px}
+.card-hd{font-size:11px;font-weight:600;color:#6e6e73;margin-bottom:14px;letter-spacing:.06em;text-transform:uppercase}
+.field{margin-bottom:18px}
+.field-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.field-label{font-size:15px;font-weight:500;color:#1d1d1f}
+.field-val{font-size:14px;color:#6e6e73;font-weight:500}
 input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:3px;background:#e5e5ea;outline:none}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:2.5px solid #007aff;cursor:pointer;box-shadow:0 2px 6px rgba(0,122,255,.25)}
-.range-labels{display:flex;justify-content:space-between;font-size:10px;color:#aeaeb2;margin-top:3px}
-.chip-row{display:flex;flex-wrap:wrap;gap:5px}
-.chip{padding:6px 13px;border-radius:20px;font-size:12px;border:1.5px solid #e5e5ea;color:#6e6e73;background:#fff;cursor:pointer;font-family:inherit;transition:all .15s}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;border:2.5px solid #007aff;cursor:pointer;box-shadow:0 2px 8px rgba(0,122,255,.28)}
+.range-labels{display:flex;justify-content:space-between;font-size:10px;color:#aeaeb2;margin-top:4px}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:7px 15px;border-radius:20px;font-size:13px;border:1.5px solid #e5e5ea;color:#6e6e73;background:#fff;cursor:pointer;font-family:inherit;transition:all .15s}
 .chip:hover{border-color:#007aff;color:#007aff}
 .chip.on{background:#007aff;color:#fff;border-color:#007aff;font-weight:500}
 .chip.rush.on{background:#ff9500;border-color:#ff9500}
-.predict-btn{width:100%;padding:13px;border-radius:14px;border:none;background:#007aff;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:6px}
+.predict-btn{width:100%;padding:14px;border-radius:14px;border:none;background:#007aff;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px;transition:opacity .15s}
 .predict-btn:hover{opacity:.88}
-.result{background:#f2f2f7;border-radius:16px;padding:20px;text-align:center;margin-top:10px}
-.result-num{font-size:64px;font-weight:200;color:#1d1d1f;line-height:1;letter-spacing:-3px}
+.result{background:#f2f2f7;border-radius:16px;padding:22px;text-align:center;margin-top:12px}
+.result-num{font-size:68px;font-weight:200;color:#1d1d1f;line-height:1;letter-spacing:-3px}
 .result-unit{font-size:15px;color:#6e6e73;margin-top:5px}
-.result-factors{margin-top:14px;display:flex;flex-direction:column;gap:6px}
-.factor-row{display:flex;justify-content:space-between;font-size:13px;padding:9px 12px;background:#fff;border-radius:9px}
+.result-factors{margin-top:14px;display:flex;flex-direction:column;gap:7px}
+.factor-row{display:flex;justify-content:space-between;font-size:13px;padding:10px 13px;background:#fff;border-radius:10px}
 .factor-label{color:#6e6e73}.factor-val{font-weight:500}
-.fare-result{margin-top:8px;background:#e8f5e9;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
-.fare-val{font-size:20px;font-weight:700;color:#1b5e20}
-.imp-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.imp-name{font-size:12px;color:#6e6e73;width:140px;flex-shrink:0}
-.imp-track{flex:1;background:#f2f2f7;border-radius:4px;height:7px;overflow:hidden}
+.fare-result{margin-top:8px;background:#e8f5e9;border-radius:12px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center}
+.fare-val{font-size:22px;font-weight:700;color:#1b5e20}
+.imp-row{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.imp-name{font-size:12px;color:#6e6e73;width:145px;flex-shrink:0}
+.imp-track{flex:1;background:#f2f2f7;border-radius:4px;height:8px;overflow:hidden}
 .imp-fill{height:100%;border-radius:4px}
 .imp-pct{font-size:12px;font-weight:500;width:38px;text-align:right}
-.zone-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f2f2f7}
+.zone-item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f2f2f7}
 .zone-item:last-child{border-bottom:none}
-.zone-rank{font-size:12px;font-weight:600;color:#aeaeb2;width:16px}
-.zone-name{flex:1;font-size:13px;color:#1d1d1f}
-.zone-boro{font-size:10px;color:#aeaeb2}
-.zone-trips{font-size:13px;font-weight:600}
-.insight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:10px}
-.insight-card{background:#fff;border-radius:12px;padding:12px}
+.zone-rank{font-size:12px;font-weight:600;color:#aeaeb2;width:18px}
+.zone-name{flex:1;font-size:14px;color:#1d1d1f}
+.zone-boro{font-size:11px;color:#aeaeb2}
+.zone-trips{font-size:14px;font-weight:600}
+.insight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:12px}
+.insight-card{background:#fff;border-radius:12px;padding:13px}
 .insight-num{font-size:20px;font-weight:700}
 .insight-label{font-size:11px;color:#6e6e73;margin-top:3px;line-height:1.4}
-.model-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.model-box{background:#fff;border-radius:14px;padding:14px}
+.model-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.model-box{background:#fff;border-radius:14px;padding:15px}
 .model-tag{font-size:10px;font-weight:700;color:#34c759;margin-bottom:3px;letter-spacing:.05em;text-transform:uppercase}
-.model-name{font-size:13px;font-weight:600;margin-bottom:10px}
+.model-tag.muted{color:#aeaeb2}
+.model-name{font-size:14px;font-weight:600;margin-bottom:10px}
 .model-stat{font-size:10px;color:#aeaeb2;margin-top:2px}
 .model-val{font-size:20px;font-weight:600}
-.stream-log{background:#f2f2f7;border-radius:10px;padding:10px;font-family:'SF Mono',Menlo,monospace;font-size:11px;height:170px;overflow-y:auto;line-height:1.8}
+.stream-log{background:#f2f2f7;border-radius:10px;padding:12px;font-family:'SF Mono',Menlo,monospace;font-size:11px;height:180px;overflow-y:auto;line-height:1.8}
 .l-info{color:#34c759}.l-batch{color:#ff9500}.l-muted{color:#aeaeb2}.l-done{color:#34c759}
 .replay-btn{width:100%;padding:10px;border-radius:10px;border:1.5px solid #e5e5ea;background:#fff;color:#007aff;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:8px}
-.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin-bottom:10px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:12px}
 .step-row{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #f2f2f7}
 .step-row:last-child{border-bottom:none}
-.step-num{width:26px;height:26px;border-radius:8px;background:#e8f0ff;color:#007aff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-num{width:28px;height:28px;border-radius:8px;background:#e8f0ff;color:#007aff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .step-title{font-size:13px;font-weight:500}
 .step-sub{font-size:11px;color:#6e6e73;margin-top:2px}
-.pipe-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f2f2f7;cursor:pointer}
+.pipe-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #f2f2f7;cursor:pointer}
 .pipe-row:last-child{border-bottom:none}
-.pipe-icon{width:34px;height:34px;border-radius:9px;background:#f2f2f7;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.pipe-icon{width:36px;height:36px;border-radius:10px;background:#f2f2f7;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
 .pipe-name{font-size:13px;font-weight:500}
-.pipe-desc{font-size:11px;color:#6e6e73;margin-top:1px}
-.pipe-detail{font-size:12px;color:#6e6e73;line-height:1.6;margin-top:7px;padding:9px 11px;background:#f2f2f7;border-radius:9px;display:none}
+.pipe-desc{font-size:11px;color:#6e6e73;margin-top:2px}
+.pipe-detail{font-size:12px;color:#6e6e73;line-height:1.6;margin-top:8px;padding:10px 12px;background:#f2f2f7;border-radius:10px;display:none}
 .pipe-detail.on{display:block}
-.badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;margin-left:auto;flex-shrink:0}
+.badge{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;margin-left:auto;flex-shrink:0}
 .b-blue{background:#e8f0ff;color:#007aff}
 .b-green{background:#e8f5e9;color:#34a853}
 .b-orange{background:#fff3e0;color:#ff9500}
 .b-gray{background:#f2f2f7;color:#6e6e73;border:1px solid #e5e5ea}
 
-/* ── Chat Agent ── */
-.chat-fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:#007aff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,122,255,.4);z-index:1000;font-size:24px;transition:transform .15s}
+/* ── Chat ── */
+.chat-fab{position:fixed;bottom:28px;right:28px;width:60px;height:60px;border-radius:50%;background:#007aff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,122,255,.45);z-index:9999;font-size:26px;transition:transform .15s}
 .chat-fab:hover{transform:scale(1.08)}
-.chat-badge{position:absolute;top:-2px;right:-2px;width:18px;height:18px;border-radius:50%;background:#ff3b30;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #f2f2f7}
-.chat-panel{position:fixed;bottom:90px;right:24px;width:340px;max-height:520px;background:#fff;border-radius:20px;box-shadow:0 8px 40px rgba(0,0,0,.18);z-index:999;display:none;flex-direction:column;overflow:hidden}
+.chat-badge-dot{position:absolute;top:0;right:0;width:20px;height:20px;border-radius:50%;background:#ff3b30;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2.5px solid #f2f2f7;pointer-events:none}
+.chat-panel{position:fixed;bottom:100px;right:28px;width:360px;max-height:580px;background:#fff;border-radius:22px;box-shadow:0 10px 50px rgba(0,0,0,.2);z-index:9998;display:none;flex-direction:column;overflow:hidden;border:1px solid rgba(0,0,0,.08)}
 .chat-panel.open{display:flex}
-.chat-header{background:#007aff;padding:14px 16px;display:flex;align-items:center;gap:10px}
-.chat-avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.chat-hname{font-size:14px;font-weight:600;color:#fff}
-.chat-hstatus{font-size:11px;color:rgba(255,255,255,.7);margin-top:1px}
-.chat-close{margin-left:auto;background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0 4px;line-height:1}
-.chat-mode-row{display:flex;gap:6px;padding:10px 12px;background:#f2f2f7;border-bottom:1px solid #e5e5ea}
-.mode-btn{flex:1;padding:6px 8px;border-radius:20px;font-size:11px;font-weight:500;border:1.5px solid #e5e5ea;background:#fff;color:#6e6e73;cursor:pointer;font-family:inherit;transition:all .15s}
+.chat-header{background:#007aff;padding:15px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.chat-av{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.chat-hname{font-size:15px;font-weight:600;color:#fff}
+.chat-hstatus{font-size:11px;color:rgba(255,255,255,.75);margin-top:1px}
+.chat-close{margin-left:auto;background:rgba(255,255,255,.2);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.chat-close:hover{background:rgba(255,255,255,.3)}
+.mode-bar{display:flex;gap:5px;padding:10px 12px;background:#f8f8f8;border-bottom:1px solid #f0f0f0;flex-shrink:0}
+.mode-btn{flex:1;padding:7px 6px;border-radius:20px;font-size:12px;font-weight:500;border:1.5px solid #e5e5ea;background:#fff;color:#6e6e73;cursor:pointer;font-family:inherit;transition:all .15s}
 .mode-btn.on{background:#007aff;color:#fff;border-color:#007aff}
-.chat-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:200px;max-height:280px}
-.msg{max-width:80%;padding:9px 12px;border-radius:16px;font-size:13px;line-height:1.5}
-.msg.bot{background:#f2f2f7;color:#1d1d1f;align-self:flex-start;border-bottom-left-radius:4px}
-.msg.user{background:#007aff;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
-.msg.typing{background:#f2f2f7;align-self:flex-start;padding:10px 14px}
-.typing-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#aeaeb2;animation:blink 1.2s infinite;margin:0 2px}
-.typing-dot:nth-child(2){animation-delay:.2s}
-.typing-dot:nth-child(3){animation-delay:.4s}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:9px;min-height:220px;max-height:290px}
+.msg{max-width:82%;padding:10px 13px;border-radius:18px;font-size:13px;line-height:1.5;word-break:break-word}
+.msg.bot{background:#f2f2f7;color:#1d1d1f;align-self:flex-start;border-bottom-left-radius:5px}
+.msg.user{background:#007aff;color:#fff;align-self:flex-end;border-bottom-right-radius:5px}
+.typing-wrap{background:#f2f2f7;border-radius:18px;border-bottom-left-radius:5px;padding:12px 16px;align-self:flex-start;display:flex;gap:4px;align-items:center}
+.dot{width:7px;height:7px;border-radius:50%;background:#aeaeb2;animation:blink 1.4s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
 @keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
-.quick-btns{display:flex;flex-wrap:wrap;gap:5px;padding:8px 12px;border-top:1px solid #f2f2f7}
-.quick-btn{padding:6px 11px;border-radius:20px;font-size:11px;border:1px solid #007aff;color:#007aff;background:#fff;cursor:pointer;font-family:inherit;white-space:nowrap}
-.quick-btn:hover{background:#007aff;color:#fff}
-.chat-input-row{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #f2f2f7}
-.chat-input{flex:1;border:1.5px solid #e5e5ea;border-radius:20px;padding:8px 14px;font-size:13px;font-family:inherit;outline:none;background:#f2f2f7}
+.quick-area{padding:8px 12px;display:flex;flex-wrap:wrap;gap:5px;border-top:1px solid #f0f0f0;flex-shrink:0}
+.qbtn{padding:6px 12px;border-radius:20px;font-size:11px;font-weight:500;border:1.5px solid #007aff;color:#007aff;background:#fff;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .15s}
+.qbtn:hover{background:#007aff;color:#fff}
+.chat-input-row{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #f0f0f0;flex-shrink:0;background:#fff}
+.chat-input{flex:1;border:1.5px solid #e5e5ea;border-radius:22px;padding:9px 16px;font-size:13px;font-family:inherit;outline:none;background:#f8f8f8;transition:all .15s}
 .chat-input:focus{border-color:#007aff;background:#fff}
-.chat-send{width:36px;height:36px;border-radius:50%;background:#007aff;border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.send-btn{width:38px;height:38px;border-radius:50%;background:#007aff;border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .15s}
+.send-btn:hover{opacity:.85}
 </style>
+</head>
+<body>
 
 <div class="hero">
-<svg viewBox="0 0 800 180" xmlns="http://www.w3.org/2000/svg" style="display:block">
-  <rect width="800" height="180" fill="#0a0f28"/>
-  <circle cx="80" cy="22" r="1.2" fill="white" opacity=".7"/>
-  <circle cx="180" cy="14" r="1" fill="white" opacity=".6"/>
-  <circle cx="320" cy="10" r="1.3" fill="white" opacity=".8"/>
-  <circle cx="480" cy="18" r="1" fill="white" opacity=".5"/>
-  <circle cx="600" cy="8" r="1.2" fill="white" opacity=".7"/>
-  <circle cx="720" cy="16" r="1" fill="white" opacity=".6"/>
-  <circle cx="740" cy="28" r="1.4" fill="#f5e6c8" opacity=".9"/>
-  <circle cx="752" cy="22" r="11" fill="#f5e6c8"/>
-  <circle cx="758" cy="18" r="8" fill="#0a0f28"/>
-  <rect x="0" y="90" width="35" height="90" fill="#111830"/>
-  <rect x="37" y="100" width="25" height="80" fill="#0d1526"/>
-  <rect x="64" y="85" width="42" height="95" fill="#111830"/>
-  <rect x="108" y="95" width="28" height="85" fill="#0d1526"/>
-  <rect x="140" y="80" width="38" height="100" fill="#111830"/>
-  <rect x="180" y="92" width="25" height="88" fill="#0d1526"/>
-  <rect x="207" y="78" width="48" height="102" fill="#111830"/>
-  <rect x="257" y="90" width="32" height="90" fill="#0d1526"/>
-  <rect x="291" y="82" width="42" height="98" fill="#111830"/>
-  <rect x="335" y="88" width="28" height="92" fill="#0d1526"/>
-  <rect x="366" y="72" width="52" height="108" fill="#111830"/>
-  <rect x="420" y="86" width="32" height="94" fill="#0d1526"/>
-  <rect x="455" y="78" width="46" height="102" fill="#111830"/>
-  <rect x="503" y="90" width="30" height="90" fill="#0d1526"/>
-  <rect x="535" y="75" width="50" height="105" fill="#111830"/>
-  <rect x="587" y="88" width="35" height="92" fill="#0d1526"/>
-  <rect x="624" y="76" width="54" height="104" fill="#111830"/>
-  <rect x="680" y="88" width="36" height="92" fill="#0d1526"/>
-  <rect x="718" y="78" width="44" height="102" fill="#111830"/>
-  <rect x="764" y="90" width="36" height="90" fill="#0d1526"/>
-  <rect x="345" y="44" width="3" height="36" fill="#1a2540"/>
-  <rect x="341" y="56" width="10" height="24" fill="#1a2540"/>
-  <circle cx="346" cy="44" r="1.5" fill="#ff4444" opacity=".9"/>
-  <rect x="8" y="96" width="3" height="3" fill="#ffd54f" opacity=".6"/>
-  <rect x="14" y="96" width="3" height="3" fill="#ffd54f" opacity=".4"/>
-  <rect x="8" y="103" width="3" height="3" fill="#81d4fa" opacity=".5"/>
-  <rect x="72" y="90" width="4" height="4" fill="#ffd54f" opacity=".7"/>
-  <rect x="80" y="90" width="4" height="4" fill="#ffd54f" opacity=".5"/>
-  <rect x="72" y="99" width="4" height="4" fill="#81d4fa" opacity=".6"/>
-  <rect x="214" y="84" width="5" height="4" fill="#ffd54f" opacity=".8"/>
-  <rect x="223" y="84" width="5" height="4" fill="#ffd54f" opacity=".4"/>
-  <rect x="214" y="93" width="5" height="4" fill="#81d4fa" opacity=".6"/>
-  <rect x="374" y="80" width="5" height="4" fill="#ffd54f" opacity=".7"/>
-  <rect x="383" y="80" width="5" height="4" fill="#ffd54f" opacity=".9"/>
-  <rect x="374" y="89" width="5" height="4" fill="#ffd54f" opacity=".5"/>
-  <rect x="542" y="82" width="5" height="4" fill="#ffd54f" opacity=".8"/>
-  <rect x="551" y="82" width="5" height="4" fill="#81d4fa" opacity=".6"/>
-  <rect x="542" y="91" width="5" height="4" fill="#ffd54f" opacity=".5"/>
-  <rect x="630" y="83" width="5" height="4" fill="#ffd54f" opacity=".7"/>
-  <rect x="639" y="83" width="5" height="4" fill="#ffd54f" opacity=".4"/>
-  <rect x="630" y="92" width="5" height="4" fill="#81d4fa" opacity=".5"/>
-  <rect x="0" y="148" width="800" height="12" fill="#1c1c1e"/>
-  <rect x="0" y="160" width="800" height="20" fill="#111"/>
-  <rect x="0" y="167" width="45" height="3" fill="#333" rx="1"/>
-  <rect x="60" y="167" width="45" height="3" fill="#333" rx="1"/>
-  <rect x="120" y="167" width="45" height="3" fill="#333" rx="1"/>
-  <rect x="180" y="167" width="45" height="3" fill="#333" rx="1"/>
-  <rect x="240" y="167" width="45" height="3" fill="#333" rx="1"/>
-  <rect x="300" y="167" width="45" height="3" fill="#333" rx="1"/>
-  <rect x="360" y="167" width="45" height="3" fill="#333" rx="1"/>
-  <rect x="420" y="167" width="45" height="3" fill="#333" rx="1"/>
-  <rect x="480" y="167" width="45" height="3" fill="#333" rx="1"/>
-  <rect x="540" y="167" width="45" height="3" fill="#333" rx="1"/>
-  <rect x="600" y="167" width="45" height="3" fill="#333" rx="1"/>
-  <rect x="660" y="167" width="45" height="3" fill="#333" rx="1"/>
-  <rect x="720" y="167" width="80" height="3" fill="#333" rx="1"/>
-  <rect x="38" y="112" width="3" height="38" fill="#2c2c2e"/>
-  <rect x="26" y="112" width="18" height="4" fill="#2c2c2e" rx="2"/>
-  <ellipse cx="35" cy="112" rx="6" ry="2.5" fill="#ffd54f" opacity=".9"/>
-  <rect x="660" y="112" width="3" height="38" fill="#2c2c2e"/>
-  <rect x="655" y="112" width="18" height="4" fill="#2c2c2e" rx="2"/>
-  <ellipse cx="663" cy="112" rx="6" ry="2.5" fill="#ffd54f" opacity=".9"/>
-  <rect x="160" y="130" width="130" height="26" fill="#f5c518" rx="5"/>
-  <rect x="192" y="120" width="44" height="13" fill="#f5c518" rx="3"/>
-  <rect x="195" y="122" width="38" height="9" fill="#1d1d1f" rx="2"/>
-  <text x="214" y="129" font-size="5.5" font-weight="700" fill="#f5c518" text-anchor="middle" font-family="Arial">TAXI</text>
-  <rect x="168" y="133" width="28" height="16" fill="#1a2a4a" rx="2" opacity=".9"/>
-  <rect x="200" y="133" width="32" height="16" fill="#1a2a4a" rx="2" opacity=".9"/>
-  <rect x="236" y="133" width="28" height="16" fill="#1a2a4a" rx="2" opacity=".9"/>
-  <line x1="198" y1="130" x2="198" y2="156" stroke="#d4a500" stroke-width="1.2"/>
-  <line x1="234" y1="130" x2="234" y2="156" stroke="#d4a500" stroke-width="1.2"/>
-  <rect x="163" y="154" width="124" height="5" fill="#d4a500" rx="2"/>
-  <circle cx="182" cy="159" r="10" fill="#1c1c1e"/>
-  <circle cx="182" cy="159" r="6" fill="#2c2c2e"/>
-  <circle cx="182" cy="159" r="3" fill="#444"/>
-  <circle cx="268" cy="159" r="10" fill="#1c1c1e"/>
-  <circle cx="268" cy="159" r="6" fill="#2c2c2e"/>
-  <circle cx="268" cy="159" r="3" fill="#444"/>
-  <rect x="153" y="137" width="6" height="8" fill="#fffde7" rx="1.5"/>
-  <ellipse cx="153" cy="141" rx="16" ry="4" fill="#fff9c4" opacity=".2"/>
-  <rect x="289" y="137" width="5" height="8" fill="#ff1744" rx="1.5"/>
-  <rect x="490" y="138" width="60" height="14" fill="#f5c518" rx="3" opacity=".5"/>
-  <rect x="504" y="134" width="20" height="7" fill="#f5c518" rx="2" opacity=".5"/>
-  <circle cx="498" cy="153" r="6" fill="#1c1c1e" opacity=".6"/>
-  <circle cx="543" cy="153" r="6" fill="#1c1c1e" opacity=".6"/>
-  <circle cx="440" cy="138" r="5" fill="#0a0f28"/>
-  <rect x="436" y="143" width="6" height="12" fill="#0a0f28" rx="2"/>
+<svg viewBox="0 0 1200 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="200" fill="#0a0f28"/>
+  <circle cx="100" cy="22" r="1.3" fill="white" opacity=".7"/>
+  <circle cx="240" cy="14" r="1.1" fill="white" opacity=".6"/>
+  <circle cx="420" cy="10" r="1.4" fill="white" opacity=".8"/>
+  <circle cx="650" cy="18" r="1.1" fill="white" opacity=".5"/>
+  <circle cx="850" cy="8" r="1.3" fill="white" opacity=".7"/>
+  <circle cx="1050" cy="16" r="1.1" fill="white" opacity=".6"/>
+  <circle cx="1140" cy="26" r="1.5" fill="#f5e6c8" opacity=".9"/>
+  <circle cx="1152" cy="20" r="13" fill="#f5e6c8"/>
+  <circle cx="1159" cy="15" r="9" fill="#0a0f28"/>
+  <!-- buildings -->
+  <rect x="0" y="95" width="50" height="105" fill="#111830"/>
+  <rect x="52" y="108" width="38" height="92" fill="#0d1526"/>
+  <rect x="92" y="88" width="58" height="112" fill="#111830"/>
+  <rect x="152" y="100" width="42" height="100" fill="#0d1526"/>
+  <rect x="196" y="82" width="52" height="118" fill="#111830"/>
+  <rect x="250" y="96" width="36" height="104" fill="#0d1526"/>
+  <rect x="288" y="76" width="64" height="124" fill="#111830"/>
+  <rect x="354" y="92" width="44" height="108" fill="#0d1526"/>
+  <rect x="400" y="80" width="56" height="120" fill="#111830"/>
+  <rect x="458" y="94" width="38" height="106" fill="#0d1526"/>
+  <rect x="498" y="68" width="70" height="132" fill="#111830"/>
+  <rect x="570" y="88" width="46" height="112" fill="#0d1526"/>
+  <rect x="618" y="74" width="62" height="126" fill="#111830"/>
+  <rect x="682" y="90" width="44" height="110" fill="#0d1526"/>
+  <rect x="728" y="70" width="66" height="130" fill="#111830"/>
+  <rect x="796" y="86" width="48" height="114" fill="#0d1526"/>
+  <rect x="846" y="72" width="60" height="128" fill="#111830"/>
+  <rect x="908" y="88" width="44" height="112" fill="#0d1526"/>
+  <rect x="954" y="76" width="58" height="124" fill="#111830"/>
+  <rect x="1014" y="92" width="40" height="108" fill="#0d1526"/>
+  <rect x="1056" y="78" width="62" height="122" fill="#111830"/>
+  <rect x="1120" y="90" width="80" height="110" fill="#0d1526"/>
+  <!-- Empire State -->
+  <rect x="504" y="36" width="4" height="32" fill="#1a2540"/>
+  <rect x="500" y="48" width="12" height="20" fill="#1a2540"/>
+  <circle cx="506" cy="36" r="2" fill="#ff4444" opacity=".9"/>
+  <!-- windows -->
+  <rect x="10" y="102" width="4" height="4" fill="#ffd54f" opacity=".6"/>
+  <rect x="18" y="102" width="4" height="4" fill="#ffd54f" opacity=".4"/>
+  <rect x="10" y="112" width="4" height="4" fill="#81d4fa" opacity=".5"/>
+  <rect x="100" y="94" width="5" height="4" fill="#ffd54f" opacity=".7"/>
+  <rect x="110" y="94" width="5" height="4" fill="#ffd54f" opacity=".5"/>
+  <rect x="100" y="104" width="5" height="4" fill="#81d4fa" opacity=".6"/>
+  <rect x="300" y="84" width="6" height="5" fill="#ffd54f" opacity=".8"/>
+  <rect x="312" y="84" width="6" height="5" fill="#ffd54f" opacity=".4"/>
+  <rect x="300" y="95" width="6" height="5" fill="#81d4fa" opacity=".6"/>
+  <rect x="510" y="75" width="6" height="5" fill="#ffd54f" opacity=".8"/>
+  <rect x="522" y="75" width="6" height="5" fill="#ffd54f" opacity=".5"/>
+  <rect x="510" y="86" width="6" height="5" fill="#ffd54f" opacity=".7"/>
+  <rect x="740" y="78" width="6" height="5" fill="#ffd54f" opacity=".7"/>
+  <rect x="752" y="78" width="6" height="5" fill="#ffd54f" opacity=".9"/>
+  <rect x="740" y="89" width="6" height="5" fill="#81d4fa" opacity=".5"/>
+  <rect x="960" y="83" width="6" height="5" fill="#ffd54f" opacity=".8"/>
+  <rect x="972" y="83" width="6" height="5" fill="#ffd54f" opacity=".4"/>
+  <rect x="960" y="94" width="6" height="5" fill="#ffd54f" opacity=".6"/>
+  <!-- sidewalk -->
+  <rect x="0" y="158" width="1200" height="14" fill="#1c1c1e"/>
+  <!-- road -->
+  <rect x="0" y="172" width="1200" height="28" fill="#111"/>
+  <rect x="0" y="183" width="55" height="3" fill="#333" rx="1"/>
+  <rect x="75" y="183" width="55" height="3" fill="#333" rx="1"/>
+  <rect x="150" y="183" width="55" height="3" fill="#333" rx="1"/>
+  <rect x="225" y="183" width="55" height="3" fill="#333" rx="1"/>
+  <rect x="300" y="183" width="55" height="3" fill="#333" rx="1"/>
+  <rect x="375" y="183" width="55" height="3" fill="#333" rx="1"/>
+  <rect x="450" y="183" width="55" height="3" fill="#333" rx="1"/>
+  <rect x="525" y="183" width="55" height="3" fill="#333" rx="1"/>
+  <rect x="600" y="183" width="55" height="3" fill="#333" rx="1"/>
+  <rect x="675" y="183" width="55" height="3" fill="#333" rx="1"/>
+  <rect x="750" y="183" width="55" height="3" fill="#333" rx="1"/>
+  <rect x="825" y="183" width="55" height="3" fill="#333" rx="1"/>
+  <rect x="900" y="183" width="55" height="3" fill="#333" rx="1"/>
+  <rect x="975" y="183" width="55" height="3" fill="#333" rx="1"/>
+  <rect x="1050" y="183" width="55" height="3" fill="#333" rx="1"/>
+  <rect x="1125" y="183" width="75" height="3" fill="#333" rx="1"/>
+  <!-- street light L -->
+  <rect x="65" y="120" width="4" height="44" fill="#2c2c2e"/>
+  <rect x="50" y="120" width="22" height="5" fill="#2c2c2e" rx="2"/>
+  <ellipse cx="61" cy="120" rx="8" ry="3" fill="#ffd54f" opacity=".9"/>
+  <!-- street light R -->
+  <rect x="940" y="120" width="4" height="44" fill="#2c2c2e"/>
+  <rect x="938" y="120" width="22" height="5" fill="#2c2c2e" rx="2"/>
+  <ellipse cx="949" cy="120" rx="8" ry="3" fill="#ffd54f" opacity=".9"/>
+  <!-- TAXI main -->
+  <rect x="280" y="138" width="165" height="28" fill="#f5c518" rx="5"/>
+  <rect x="312" y="128" width="52" height="13" fill="#f5c518" rx="3"/>
+  <rect x="315" y="130" width="46" height="9" fill="#1d1d1f" rx="2"/>
+  <text x="338" y="138" font-size="6" font-weight="700" fill="#f5c518" text-anchor="middle" font-family="Arial,sans-serif">TAXI</text>
+  <rect x="290" y="141" width="34" height="18" fill="#1a2a4a" rx="2" opacity=".9"/>
+  <rect x="328" y="141" width="38" height="18" fill="#1a2a4a" rx="2" opacity=".9"/>
+  <rect x="370" y="141" width="34" height="18" fill="#1a2a4a" rx="2" opacity=".9"/>
+  <line x1="326" y1="138" x2="326" y2="166" stroke="#d4a500" stroke-width="1.2"/>
+  <line x1="368" y1="138" x2="368" y2="166" stroke="#d4a500" stroke-width="1.2"/>
+  <rect x="275" y="164" width="155" height="5" fill="#d4a500" rx="2"/>
+  <circle cx="302" cy="169" r="11" fill="#1c1c1e"/>
+  <circle cx="302" cy="169" r="7" fill="#2c2c2e"/>
+  <circle cx="302" cy="169" r="3" fill="#555"/>
+  <circle cx="406" cy="169" r="11" fill="#1c1c1e"/>
+  <circle cx="406" cy="169" r="7" fill="#2c2c2e"/>
+  <circle cx="406" cy="169" r="3" fill="#555"/>
+  <rect x="268" y="145" width="8" height="9" fill="#fffde7" rx="2"/>
+  <ellipse cx="268" cy="149" rx="20" ry="5" fill="#fff9c4" opacity=".18"/>
+  <rect x="444" y="145" width="6" height="9" fill="#ff1744" rx="1.5"/>
+  <!-- taxi 2 far -->
+  <rect x="720" y="148" width="90" height="18" fill="#f5c518" rx="3" opacity=".55"/>
+  <rect x="742" y="143" width="28" height="8" fill="#f5c518" rx="2" opacity=".55"/>
+  <circle cx="730" cy="167" r="7" fill="#1c1c1e" opacity=".6"/>
+  <circle cx="802" cy="167" r="7" fill="#1c1c1e" opacity=".6"/>
+  <rect x="716" y="151" width="5" height="6" fill="#fffde7" rx="1" opacity=".7"/>
+  <!-- pedestrian -->
+  <circle cx="600" cy="147" r="7" fill="#0d1526"/>
+  <rect x="596" y="154" width="7" height="14" fill="#0d1526" rx="2"/>
+  <line x1="594" y1="158" x2="590" y2="164" stroke="#0d1526" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="603" y1="158" x2="607" y2="164" stroke="#0d1526" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- data nodes -->
+  <circle cx="200" cy="118" r="2.5" fill="#007aff" opacity=".8"/>
+  <circle cx="220" cy="108" r="2" fill="#007aff" opacity=".6"/>
+  <circle cx="210" cy="130" r="1.5" fill="#34c759" opacity=".7"/>
+  <line x1="200" y1="118" x2="220" y2="108" stroke="#007aff" stroke-width=".8" opacity=".4"/>
+  <line x1="200" y1="118" x2="210" y2="130" stroke="#34c759" stroke-width=".8" opacity=".4"/>
+  <circle cx="900" cy="115" r="2.5" fill="#ff9500" opacity=".8"/>
+  <circle cx="920" cy="105" r="2" fill="#ff9500" opacity=".5"/>
+  <line x1="900" y1="115" x2="920" y2="105" stroke="#ff9500" stroke-width=".8" opacity=".4"/>
 </svg>
 <div class="hero-text">
   <div class="hero-title">NYC Taxi trip analysis</div>
@@ -228,7 +260,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 </div>
 </div>
 
-<div class="wrap">
+<div class="container">
 <div class="seg">
   <button class="seg-btn on" onclick="go('predict',0)">Predict</button>
   <button class="seg-btn" onclick="go('demand',1)">Demand</button>
@@ -306,7 +338,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
     <div class="result-unit">estimated minutes</div>
     <div class="result-factors" id="rfactors"></div>
     <div class="fare-result" id="rfare" style="display:none">
-      <span style="font-size:13px;color:#2e7d32">Estimated fare</span>
+      <span style="font-size:14px;color:#2e7d32;font-weight:500">Estimated fare</span>
       <span class="fare-val" id="rfareval">$0.00</span>
     </div>
   </div>
@@ -321,17 +353,17 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
   </div>
   <div class="card">
     <div class="card-hd">Trips and avg duration by hour</div>
-    <div style="display:flex;gap:12px;margin-bottom:10px;font-size:11px;color:#6e6e73;flex-wrap:wrap">
-      <span style="display:flex;align-items:center;gap:4px"><span style="width:9px;height:9px;border-radius:2px;background:#b5d4f4;display:inline-block"></span>Off-peak</span>
-      <span style="display:flex;align-items:center;gap:4px"><span style="width:9px;height:9px;border-radius:2px;background:#ff9500;display:inline-block"></span>Rush hour</span>
-      <span style="display:flex;align-items:center;gap:4px"><span style="width:9px;height:9px;border-radius:2px;background:#34c759;display:inline-block"></span>Avg duration</span>
+    <div style="display:flex;gap:14px;margin-bottom:12px;font-size:11px;color:#6e6e73;flex-wrap:wrap">
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#b5d4f4;display:inline-block"></span>Off-peak</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#ff9500;display:inline-block"></span>Rush hour</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#34c759;display:inline-block"></span>Avg duration</span>
     </div>
-    <div style="position:relative;width:100%;height:220px"><canvas id="hChart" role="img" aria-label="Trips and duration by hour">Rush hours show doubled duration.</canvas></div>
+    <div style="position:relative;width:100%;height:240px"><canvas id="hChart" role="img" aria-label="Trips and duration by hour">Rush hours show doubled duration.</canvas></div>
   </div>
   <div class="grid2">
     <div class="card">
       <div class="card-hd">By borough</div>
-      <div style="position:relative;width:100%;height:180px"><canvas id="bChart" role="img" aria-label="Manhattan 84%, Queens 12%, Brooklyn 6%">Manhattan 84%.</canvas></div>
+      <div style="position:relative;width:100%;height:200px"><canvas id="bChart" role="img" aria-label="Manhattan 84%, Queens 12%, Brooklyn 6%">Manhattan 84%.</canvas></div>
     </div>
     <div class="card">
       <div class="card-hd">Top pickup zones</div>
@@ -343,7 +375,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 <div class="page" id="page-ml">
   <div class="model-row">
     <div class="model-box">
-      <div class="model-tag">Primary</div>
+      <div class="model-tag">Primary model</div>
       <div class="model-name">Random Forest</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
         <div><div class="model-val">3.87</div><div class="model-stat">RMSE (min)</div></div>
@@ -352,7 +384,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
       </div>
     </div>
     <div class="model-box">
-      <div class="model-tag" style="color:#aeaeb2">Baseline</div>
+      <div class="model-tag muted">Baseline</div>
       <div class="model-name">Linear Regression</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
         <div><div class="model-val" style="color:#6e6e73">3.89</div><div class="model-stat">RMSE (min)</div></div>
@@ -367,7 +399,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
   </div>
   <div class="card">
     <div class="card-hd">Key insight</div>
-    <p style="font-size:14px;line-height:1.7;color:#1d1d1f">Distance drives 78% of trip duration. Rush-hour status adds 16% — the same 3-mile trip takes 10 min at midnight and 21 min at 5 PM.</p>
+    <p style="font-size:14px;line-height:1.7;color:#1d1d1f">Distance drives 78% of trip duration. Rush-hour status adds 16% — the same 3-mile trip takes 10 min at midnight and 21 min at 5 PM. Distance alone would be systematically optimistic.</p>
   </div>
 </div>
 
@@ -380,7 +412,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
     </div>
     <div class="card">
       <div class="card-hd">Streamed trips per hour</div>
-      <div style="position:relative;width:100%;height:170px"><canvas id="sChart" role="img" aria-label="Streamed trips per hour">Matches batch output.</canvas></div>
+      <div style="position:relative;width:100%;height:180px"><canvas id="sChart" role="img" aria-label="Streamed trips per hour">Matches batch output.</canvas></div>
     </div>
   </div>
   <div class="card">
@@ -398,227 +430,348 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
   <div class="card">
     <div class="card-hd">End-to-end pipeline — tap any stage</div>
     <div>
-      <div class="pipe-row" onclick="tog('pd0')"><div class="pipe-icon">💾</div><div style="flex:1"><div class="pipe-name">generate_sample.py</div><div class="pipe-desc">40K seeded synthetic trips + zone lookup</div><div class="pipe-detail" id="pd0">Generates 40,000 trips with seed=42. Rush-hour signal ×1.9 for 7–10, ×2.1 for 16–19. ~2% dirty rows for cleaning demo.</div></div><span class="badge b-gray">Data</span></div>
-      <div class="pipe-row" onclick="tog('pd1')"><div class="pipe-icon">📋</div><div style="flex:1"><div class="pipe-name">ingestion.py</div><div class="pipe-desc">Typed-schema CSV → curated Parquet</div><div class="pipe-detail" id="pd1">Explicit StructType schema. Supports real TLC Parquet via normalize_trips(). Writes data/curated/trips/.</div></div><span class="badge b-blue">Structured API</span></div>
-      <div class="pipe-row" onclick="tog('pd2')"><div class="pipe-icon">🔧</div><div style="flex:1"><div class="pipe-name">transformations.py</div><div class="pipe-desc">Clean + features + broadcast join + SQL</div><div class="pipe-detail" id="pd2">Derives pickup_hour, is_rush_hour. Broadcast-joins zone lookup. Queries demand-by-hour + top-10 zones via Spark SQL.</div></div><span class="badge b-blue">Spark SQL</span></div>
-      <div class="pipe-row" onclick="tog('pd3')"><div class="pipe-icon">▶️</div><div style="flex:1"><div class="pipe-name">streaming.py</div><div class="pipe-desc">12 micro-batch simulation</div><div class="pipe-detail" id="pd3">maxFilesPerTrigger=1, outputMode=complete, trigger(availableNow=True). Pure aggregation function testable on static data.</div></div><span class="badge b-orange">Streaming</span></div>
-      <div class="pipe-row" onclick="tog('pd4')"><div class="pipe-icon">📊</div><div style="flex:1"><div class="pipe-name">ml_pipeline.py</div><div class="pipe-desc">RandomForest + LinearRegression</div><div class="pipe-detail" id="pd4">StringIndexer → OHE → VectorAssembler → regressor. 40 trees, depth 8, 80/20 split. RMSE 3.87, R² 0.867.</div></div><span class="badge b-green">MLlib</span></div>
+      <div class="pipe-row" onclick="tog('pd0')"><div class="pipe-icon">💾</div><div style="flex:1"><div class="pipe-name">generate_sample.py</div><div class="pipe-desc">40K seeded synthetic trips + zone lookup</div><div class="pipe-detail" id="pd0">Generates 40,000 trips with seed=42. Rush-hour signal x1.9 for 7-10, x2.1 for 16-19. ~2% dirty rows for cleaning demo.</div></div><span class="badge b-gray">Data</span></div>
+      <div class="pipe-row" onclick="tog('pd1')"><div class="pipe-icon">📋</div><div style="flex:1"><div class="pipe-name">ingestion.py</div><div class="pipe-desc">Typed-schema CSV to curated Parquet</div><div class="pipe-detail" id="pd1">Explicit StructType schema. Supports real TLC Parquet via normalize_trips(). Writes data/curated/trips/.</div></div><span class="badge b-blue">Structured API</span></div>
+      <div class="pipe-row" onclick="tog('pd2')"><div class="pipe-icon">🔧</div><div style="flex:1"><div class="pipe-name">transformations.py</div><div class="pipe-desc">Clean + features + broadcast join + SQL</div><div class="pipe-detail" id="pd2">Derives pickup_hour, is_rush_hour. Broadcast-joins 35-row zone lookup. Queries demand-by-hour + top-10 zones via Spark SQL.</div></div><span class="badge b-blue">Spark SQL</span></div>
+      <div class="pipe-row" onclick="tog('pd3')"><div class="pipe-icon">▶️</div><div style="flex:1"><div class="pipe-name">streaming.py</div><div class="pipe-desc">12 micro-batch simulation</div><div class="pipe-detail" id="pd3">maxFilesPerTrigger=1, outputMode=complete, trigger(availableNow=True). Pure aggregation testable on static data.</div></div><span class="badge b-orange">Streaming</span></div>
+      <div class="pipe-row" onclick="tog('pd4')"><div class="pipe-icon">📊</div><div style="flex:1"><div class="pipe-name">ml_pipeline.py</div><div class="pipe-desc">RandomForest + LinearRegression</div><div class="pipe-detail" id="pd4">StringIndexer to OHE to VectorAssembler to regressor. 40 trees, depth 8, 80/20 split. RMSE 3.87, R2 0.867.</div></div><span class="badge b-green">MLlib</span></div>
     </div>
   </div>
 </div>
 </div>
 
 <!-- Chat FAB -->
-<button class="chat-fab" onclick="toggleChat()" aria-label="Open assistant">
-  <span id="fab-icon">🚕</span>
-  <span class="chat-badge" id="chat-badge">1</span>
+<button class="chat-fab" id="chat-fab" onclick="toggleChat()">
+  <span id="fab-ico">🚕</span>
+  <span class="chat-badge-dot" id="cbadge">1</span>
 </button>
 
 <!-- Chat Panel -->
 <div class="chat-panel" id="chat-panel">
   <div class="chat-header">
-    <div class="chat-avatar">🚖</div>
+    <div class="chat-av">🚖</div>
     <div>
       <div class="chat-hname">TaxiAI Assistant</div>
-      <div class="chat-hstatus" id="chat-status">Online — here to help</div>
+      <div class="chat-hstatus">Online — ask me anything</div>
     </div>
     <button class="chat-close" onclick="toggleChat()">&#x2715;</button>
   </div>
-  <div class="chat-mode-row">
-    <button class="mode-btn on" onclick="setMode('customer',this)" id="mode-customer">Passenger</button>
-    <button class="mode-btn" onclick="setMode('driver',this)" id="mode-driver">Driver</button>
-    <button class="mode-btn" onclick="setMode('data',this)" id="mode-data">Data Q&amp;A</button>
+  <div class="mode-bar">
+    <button class="mode-btn on" id="m0" onclick="setMode('passenger',0)">Passenger</button>
+    <button class="mode-btn" id="m1" onclick="setMode('driver',1)">Driver</button>
+    <button class="mode-btn" id="m2" onclick="setMode('data',2)">Data Q&amp;A</button>
   </div>
   <div class="chat-msgs" id="chat-msgs"></div>
-  <div class="quick-btns" id="quick-btns"></div>
+  <div class="quick-area" id="quick-area"></div>
   <div class="chat-input-row">
     <input class="chat-input" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMsg()">
-    <button class="chat-send" onclick="sendMsg()">&#8679;</button>
+    <button class="send-btn" onclick="sendMsg()">&#8679;</button>
   </div>
 </div>
 
 <script>
-const HD=[{h:0,t:385,d:9.85},{h:1,t:250,d:9.92},{h:2,t:170,d:10.0},{h:3,t:204,d:10.02},{h:4,t:277,d:9.69},{h:5,t:533,d:9.74},{h:6,t:986,d:12.07},{h:7,t:2276,d:18.81},{h:8,t:2755,d:18.48},{h:9,t:2141,d:18.48},{h:10,t:1745,d:18.92},{h:11,t:1902,d:12.53},{h:12,t:2162,d:12.37},{h:13,t:1960,d:12.19},{h:14,t:1918,d:12.07},{h:15,t:2282,d:12.36},{h:16,t:3047,d:20.8},{h:17,t:3093,d:21.5},{h:18,t:2741,d:21.21},{h:19,t:2272,d:20.93},{h:20,t:2076,d:12.42},{h:21,t:1902,d:12.42},{h:22,t:1614,d:12.15},{h:23,t:909,d:12.47}];
-const isRush=h=>(h>=7&&h<=10)||(h>=16&&h<=19);
-const inited={};
-const HRS=['12 AM','1 AM','2 AM','3 AM','4 AM','5 AM','6 AM','7 AM','8 AM','9 AM','10 AM','11 AM','12 PM','1 PM','2 PM','3 PM','4 PM','5 PM','6 PM','7 PM','8 PM','9 PM','10 PM','11 PM'];
-function go(id,i){document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.seg-btn').forEach((b,j)=>b.classList.toggle('on',j===i));document.getElementById('page-'+id).classList.add('on');if(!inited[id]){inited[id]=1;initPage(id);}}
-function initPage(id){if(id==='demand')bD();if(id==='ml')bML();if(id==='stream')bS();}
-function selC(btn){btn.closest('.chip-row').querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));btn.classList.add('on');}
+var HD=[{h:0,t:385,d:9.85},{h:1,t:250,d:9.92},{h:2,t:170,d:10.0},{h:3,t:204,d:10.02},{h:4,t:277,d:9.69},{h:5,t:533,d:9.74},{h:6,t:986,d:12.07},{h:7,t:2276,d:18.81},{h:8,t:2755,d:18.48},{h:9,t:2141,d:18.48},{h:10,t:1745,d:18.92},{h:11,t:1902,d:12.53},{h:12,t:2162,d:12.37},{h:13,t:1960,d:12.19},{h:14,t:1918,d:12.07},{h:15,t:2282,d:12.36},{h:16,t:3047,d:20.8},{h:17,t:3093,d:21.5},{h:18,t:2741,d:21.21},{h:19,t:2272,d:20.93},{h:20,t:2076,d:12.42},{h:21,t:1902,d:12.42},{h:22,t:1614,d:12.15},{h:23,t:909,d:12.47}];
+var HRS=['12 AM','1 AM','2 AM','3 AM','4 AM','5 AM','6 AM','7 AM','8 AM','9 AM','10 AM','11 AM','12 PM','1 PM','2 PM','3 PM','4 PM','5 PM','6 PM','7 PM','8 PM','9 PM','10 PM','11 PM'];
+function isRush(h){return (h>=7&&h<=10)||(h>=16&&h<=19);}
+var inited={};
+function go(id,i){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.seg-btn').forEach(function(b,j){b.classList.toggle('on',j===i);});
+  document.getElementById('page-'+id).classList.add('on');
+  if(!inited[id]){inited[id]=true;initPage(id);}
+}
+function initPage(id){
+  if(id==='demand')bD();
+  if(id==='ml')bML();
+  if(id==='stream')bS();
+}
+function selC(btn){
+  btn.closest('.chip-row').querySelectorAll('.chip').forEach(function(c){c.classList.remove('on');});
+  btn.classList.add('on');
+}
 function tog(id){document.getElementById(id).classList.toggle('on');}
 function upd(){
-  const d=parseFloat(document.getElementById('p-dist').value);
-  const h=parseInt(document.getElementById('p-hour').value);
-  const pax=parseInt(document.getElementById('p-pax').value);
+  var d=parseFloat(document.getElementById('p-dist').value);
+  var h=parseInt(document.getElementById('p-hour').value);
+  var pax=parseInt(document.getElementById('p-pax').value);
   document.getElementById('dv').textContent=d.toFixed(1)+' miles';
   document.getElementById('hv').textContent=HRS[h]+(isRush(h)?' — rush hour':'');
   document.getElementById('paxv').textContent=pax;
 }
 function predict(){
-  const d=parseFloat(document.getElementById('p-dist').value);
-  const h=parseInt(document.getElementById('p-hour').value);
-  const pax=parseInt(document.getElementById('p-pax').value);
-  const boro=document.querySelector('#boro-chips .chip.on')?.textContent||'Manhattan';
-  const dow=document.querySelector('#dow-chips .chip.on')?.textContent||'Tue';
-  const win=document.querySelector('#win-chips .chip.on')?.textContent||'Midday';
-  const rush=isRush(h)||win.includes('rush');
-  const weekend=dow==='Sat'||dow==='Sun';
-  const bp={Manhattan:1,Queens:1.04,Brooklyn:1.02,Bronx:1.06,'Staten Island':1.08};
-  let dur=d*3.48*(bp[boro]||1);
-  if(rush)dur*=1.94;else if(win.includes('Late'))dur*=0.92;
+  var d=parseFloat(document.getElementById('p-dist').value);
+  var h=parseInt(document.getElementById('p-hour').value);
+  var pax=parseInt(document.getElementById('p-pax').value);
+  var boro=document.querySelector('#boro-chips .chip.on');
+  var boroTxt=boro?boro.textContent:'Manhattan';
+  var dow=document.querySelector('#dow-chips .chip.on');
+  var dowTxt=dow?dow.textContent:'Tue';
+  var win=document.querySelector('#win-chips .chip.on');
+  var winTxt=win?win.textContent:'Midday';
+  var rush=isRush(h)||winTxt.indexOf('rush')>-1;
+  var weekend=(dowTxt==='Sat'||dowTxt==='Sun');
+  var bp={Manhattan:1,Queens:1.04,Brooklyn:1.02,Bronx:1.06,'Staten Island':1.08};
+  var m=bp[boroTxt]||1;
+  var dur=d*3.48*m;
+  if(rush)dur*=1.94;
+  else if(winTxt.indexOf('Late')>-1)dur*=0.92;
   if(weekend&&!rush)dur*=0.93;
   if(pax>=5)dur*=1.03;
-  const result=Math.max(1.5,dur+(Math.random()-.5)*1.2);
-  const fare=Math.max(3.5,result*0.72+d*1.1+2.5+(rush?3:0));
+  var result=Math.max(1.5,dur+(Math.random()-0.5)*1.2);
+  var fare=Math.max(3.5,result*0.72+d*1.1+2.5+(rush?3:0));
   document.getElementById('rnum').textContent=result.toFixed(1);
-  const factors=[{l:'Distance',v:d.toFixed(1)+' mi'},{l:'Time',v:HRS[h]+(isRush(h)?' (rush)':'')},{l:'Borough',v:boro},{l:'Day',v:weekend?'Weekend':'Weekday'},{l:'Passengers',v:pax}];
-  document.getElementById('rfactors').innerHTML=factors.map(f=>`<div class="factor-row"><span class="factor-label">${f.l}</span><span class="factor-val">${f.v}</span></div>`).join('');
+  var factors=[
+    {l:'Distance',v:d.toFixed(1)+' mi'},
+    {l:'Time',v:HRS[h]+(isRush(h)?' (rush)':'')},
+    {l:'Borough',v:boroTxt},
+    {l:'Day',v:weekend?'Weekend':'Weekday'},
+    {l:'Passengers',v:pax}
+  ];
+  document.getElementById('rfactors').innerHTML=factors.map(function(f){
+    return '<div class="factor-row"><span class="factor-label">'+f.l+'</span><span class="factor-val">'+f.v+'</span></div>';
+  }).join('');
   document.getElementById('rfare').style.display='flex';
   document.getElementById('rfareval').textContent='$'+fare.toFixed(2);
 }
 function bD(){
-  new Chart(document.getElementById('hChart'),{data:{labels:HD.map(d=>d.h),datasets:[{type:'bar',label:'Trips',data:HD.map(d=>d.t),backgroundColor:HD.map(d=>isRush(d.h)?'#ff9500':'#b5d4f4'),yAxisID:'y',order:2},{type:'line',label:'Avg dur',data:HD.map(d=>d.d),borderColor:'#34c759',backgroundColor:'rgba(52,199,89,.08)',yAxisID:'y2',order:1,tension:0.4,pointRadius:0,borderWidth:2,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6e6e73',font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}},y:{ticks:{color:'#6e6e73'},grid:{color:'rgba(0,0,0,.04)'}},y2:{position:'right',ticks:{color:'#34c759'},grid:{display:false}}}}});
-  new Chart(document.getElementById('bChart'),{type:'doughnut',data:{labels:['Manhattan 84%','Queens 12%','Brooklyn 6%'],datasets:[{data:[32845,4515,2240],backgroundColor:['#007aff','#34c759','#ff9500'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#6e6e73',font:{size:11},boxWidth:10,padding:8}}}}});
-  const zones=[['Times Sq / Theatre District','Manhattan',2324],['Penn Station','Manhattan',2240],['Midtown Center','Manhattan',2201],['JFK Airport','Queens',1452],['LaGuardia Airport','Queens',1345]];
-  document.getElementById('zlist').innerHTML=zones.map(([n,b,t],i)=>`<div class="zone-item"><div class="zone-rank">${i+1}</div><div style="flex:1"><div class="zone-name">${n}</div><div class="zone-boro">${b}</div></div><div class="zone-trips">${t.toLocaleString()}</div></div>`).join('');
+  var colors=HD.map(function(d){return isRush(d.h)?'#ff9500':'#b5d4f4';});
+  new Chart(document.getElementById('hChart'),{
+    data:{labels:HD.map(function(d){return d.h;}),datasets:[
+      {type:'bar',label:'Trips',data:HD.map(function(d){return d.t;}),backgroundColor:colors,yAxisID:'y',order:2},
+      {type:'line',label:'Avg dur',data:HD.map(function(d){return d.d;}),borderColor:'#34c759',backgroundColor:'rgba(52,199,89,.08)',yAxisID:'y2',order:1,tension:0.4,pointRadius:0,borderWidth:2,fill:true}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
+      x:{ticks:{color:'#6e6e73',font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}},
+      y:{ticks:{color:'#6e6e73'},grid:{color:'rgba(0,0,0,.04)'}},
+      y2:{position:'right',ticks:{color:'#34c759'},grid:{display:false}}
+    }}
+  });
+  new Chart(document.getElementById('bChart'),{
+    type:'doughnut',
+    data:{labels:['Manhattan 84%','Queens 12%','Brooklyn 6%'],datasets:[{data:[32845,4515,2240],backgroundColor:['#007aff','#34c759','#ff9500'],borderWidth:0,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#6e6e73',font:{size:11},boxWidth:10,padding:8}}}}
+  });
+  var zones=[['Times Sq / Theatre District','Manhattan',2324],['Penn Station','Manhattan',2240],['Midtown Center','Manhattan',2201],['JFK Airport','Queens',1452],['LaGuardia Airport','Queens',1345]];
+  document.getElementById('zlist').innerHTML=zones.map(function(z,i){
+    return '<div class="zone-item"><div class="zone-rank">'+(i+1)+'</div><div style="flex:1"><div class="zone-name">'+z[0]+'</div><div class="zone-boro">'+z[1]+'</div></div><div class="zone-trips">'+z[2].toLocaleString()+'</div></div>';
+  }).join('');
 }
 function bML(){
-  const feats=[['trip_distance',78.1,'#ff9500'],['is_rush_hour',16.3,'#ff9500'],['pickup_hour',4.7,'#34c759'],['passenger_count',0.3,'#d1d1d6'],['pickup_dow',0.3,'#d1d1d6'],['pu_borough',0.06,'#d1d1d6'],['payment_type',0.05,'#d1d1d6']];
-  document.getElementById('imp').innerHTML=feats.map(([n,v,c])=>`<div class="imp-row"><div class="imp-name">${n}</div><div class="imp-track"><div class="imp-fill" style="width:${v}%;background:${c}"></div></div><div class="imp-pct">${v.toFixed(1)}%</div></div>`).join('');
+  var feats=[['trip_distance',78.1,'#ff9500'],['is_rush_hour',16.3,'#ff9500'],['pickup_hour',4.7,'#34c759'],['passenger_count',0.3,'#d1d1d6'],['pickup_dow',0.3,'#d1d1d6'],['pu_borough',0.06,'#d1d1d6'],['payment_type',0.05,'#d1d1d6']];
+  document.getElementById('imp').innerHTML=feats.map(function(f){
+    return '<div class="imp-row"><div class="imp-name">'+f[0]+'</div><div class="imp-track"><div class="imp-fill" style="width:'+f[1]+'%;background:'+f[2]+'"></div></div><div class="imp-pct">'+f[1].toFixed(1)+'%</div></div>';
+  }).join('');
 }
 function bS(){
-  new Chart(document.getElementById('sChart'),{type:'line',data:{labels:HD.map(d=>d.h),datasets:[{label:'Streamed trips',data:HD.map(d=>d.t),borderColor:'#007aff',backgroundColor:'rgba(0,122,255,.08)',tension:0.4,fill:true,pointRadius:0,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6e6e73',font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}},y:{ticks:{color:'#6e6e73'},grid:{color:'rgba(0,0,0,.04)'}}}}});
+  new Chart(document.getElementById('sChart'),{
+    type:'line',
+    data:{labels:HD.map(function(d){return d.h;}),datasets:[{label:'Streamed trips',data:HD.map(function(d){return d.t;}),borderColor:'#007aff',backgroundColor:'rgba(0,122,255,.08)',tension:0.4,fill:true,pointRadius:0,borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
+      x:{ticks:{color:'#6e6e73',font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}},
+      y:{ticks:{color:'#6e6e73'},grid:{color:'rgba(0,0,0,.04)'}}
+    }}
+  });
 }
-let streaming=false;
-async function replay(){
-  if(streaming)return;streaming=true;
-  const log=document.getElementById('slog');log.innerHTML='';
-  const lines=[['l-info','Spark Structured Streaming — stage 3'],['l-muted','Splitting into 12 micro-batch files...'],['l-muted','']];
-  for(let i=0;i<12;i++)lines.push(['l-batch',`[batch ${i}] batch_${String(i).padStart(3,'0')}.csv — ${Math.round(3300+(Math.random()-.5)*100)} rows`]);
-  lines.push(['l-muted',''],['l-info','All 12 batches complete — batchId: 11'],['l-done','Output matches batch SQL exactly ✓']);
-  for(const[c,t]of lines){await new Promise(r=>setTimeout(r,65));const d=document.createElement('div');d.className=c;d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight;}
-  streaming=false;
-}
-
-// ── Chat Agent ──────────────────────────────────────────────────
-let chatOpen=false;
-let currentMode='customer';
-
-const MODES={
-  customer:{
-    welcome:"Hi! I'm TaxiAI, your NYC taxi assistant. How can I help you today?",
-    quick:['Estimate my fare','Best time to travel','Avoid rush hour','Payment options','Track my ride'],
-    responses:{
-      'estimate':d=>`Based on our ML model, a ${d.dist||3}-mile trip in ${d.boro||'Manhattan'} costs ~$${(Math.max(3.5,(d.dist||3)*1.1*3.2+2.5)).toFixed(2)}. During rush hour, expect 30–40% more.`,
-      'rush':()=>'Avoid 7–10 AM and 4–7 PM if possible. Our data shows duration nearly doubles — a 3-mile trip goes from ~10 min overnight to ~21 min at 5 PM.',
-      'payment':()=>'NYC taxis accept credit cards, debit cards, and cash. Card payments average $13.62/trip vs $13.58 cash — nearly identical.',
-      'track':()=>"Real-time tracking isn't available in this demo, but our Spark Streaming pipeline processes live trip events to estimate ETAs.",
-      'best time':()=>'Cheapest and fastest: 11 PM–5 AM. Midday 11 AM–3 PM is also good. Avoid 7–10 AM and 4–7 PM.',
-      'default':q=>`Great question about "${q}"! Based on 40,000 NYC trips in our dataset, I'd recommend checking the Predict tab for a personalized estimate. Can I help with anything else?`
-    }
-  },
-  driver:{
-    welcome:"Hey driver! I can help with demand patterns, best pickup zones, and earnings tips.",
-    quick:['Busiest hours today','Top pickup zones','Fare per mile','Rush hour tips','Airport runs'],
-    responses:{
-      'busiest':()=>'Peak demand: 4–7 PM (3,047–3,093 trips/hr) and 7–10 AM (1,745–2,755/hr). Late night 0–5 AM is slowest.',
-      'zones':()=>'Top zones: Times Sq/Theatre District (2,324 trips), Penn Station (2,240), Midtown Center (2,201), JFK (1,452), LaGuardia (1,345).',
-      'fare':()=>'Average fare: $13.60/trip, avg distance 2.95 mi. Rush hour fares average ~$15.40 vs ~$11.60 overnight.',
-      'rush':()=>'During rush hour (7–10 AM, 4–7 PM), position near Midtown. Fare averages jump ~33% but trips take 2× longer — your call!',
-      'airport':()=>'JFK generates 1,452 trips in our sample with ~$63 avg fare on real TLC data — highest earning per trip. LaGuardia: 1,345 trips.',
-      'default':q=>`Good question! Our Spark pipeline analyzed ${(40000).toLocaleString()} trips. For "${q}", I'd suggest checking the Demand tab for hourly patterns.`
-    }
-  },
-  data:{
-    welcome:"Ask me anything about the NYC Taxi Spark pipeline, ML model, or dataset!",
-    quick:['What is R²?','How does streaming work?','Top features?','Dataset size','Run the pipeline'],
-    responses:{
-      'r²':()=>"R² (R-squared) = 0.867 for our Random Forest. It means the model explains 86.7% of the variance in trip duration. Range is 0–1; higher is better.",
-      'streaming':():"Spark Structured Streaming reads 12 micro-batch CSV files (1 per trigger), maintains a running aggregation of trips/fare/duration per hour, then terminates cleanly with trigger(availableNow=True).",
-      'feature':()=>'Top features: trip_distance (78.1%), is_rush_hour (16.3%), pickup_hour (4.7%). Distance dominates but rush-hour doubles duration for same distance.',
-      'dataset':()=>'40,000 synthetic trips × 13 columns (committed sample). Also validated on real TLC Jan-2024 Parquet: 2,964,624 rows, R² 0.735.',
-      'run':()=>"One command: `bash run.sh` or `make run`. Runs all 5 stages: generate → ingest → transform → stream → ML. Takes ~1–2 min locally.",
-      'rmse':()=>'RMSE = 3.87 minutes for Random Forest. This means predictions are off by ~3.87 min on average. MAE = 2.63 min.',
-      'default':q=>`Great data question! For "${q}": our pipeline covers Structured APIs, Spark SQL, Streaming, and MLlib. Check the Pipeline tab for details, or ask me something more specific!`
-    }
+var streaming=false;
+function replay(){
+  if(streaming)return;
+  streaming=true;
+  var log=document.getElementById('slog');
+  log.innerHTML='';
+  var lines=[
+    ['l-info','Spark Structured Streaming — stage 3'],
+    ['l-muted','Splitting into 12 micro-batch files...'],
+    ['l-muted','']
+  ];
+  for(var i=0;i<12;i++){
+    lines.push(['l-batch','[batch '+i+'] batch_'+String(i).padStart(3,'0')+'.csv — '+Math.round(3300+(Math.random()-0.5)*100)+' rows']);
   }
-};
+  lines.push(['l-muted','']);
+  lines.push(['l-info','All 12 batches complete — batchId: 11']);
+  lines.push(['l-done','Output matches batch SQL exactly \u2713']);
+  var idx=0;
+  function next(){
+    if(idx>=lines.length){streaming=false;return;}
+    var el=document.createElement('div');
+    el.className=lines[idx][0];
+    el.textContent=lines[idx][1];
+    log.appendChild(el);
+    log.scrollTop=99999;
+    idx++;
+    setTimeout(next,65);
+  }
+  next();
+}
+
+// ── CHAT ──────────────────────────────────────────────────────
+var chatOpen=false;
+var chatMode='passenger';
+var chatHistory=[];
 
 function toggleChat(){
   chatOpen=!chatOpen;
   document.getElementById('chat-panel').classList.toggle('open',chatOpen);
-  document.getElementById('chat-badge').style.display=chatOpen?'none':'flex';
-  document.getElementById('fab-icon').textContent=chatOpen?'✕':'🚕';
-  if(chatOpen&&document.getElementById('chat-msgs').children.length===0)initChat();
+  document.getElementById('cbadge').style.display=chatOpen?'none':'flex';
+  document.getElementById('fab-ico').textContent=chatOpen?'✕':'🚕';
+  if(chatOpen&&document.getElementById('chat-msgs').children.length===0){
+    initChat();
+  }
 }
 
-function setMode(mode,btn){
-  currentMode=mode;
-  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
+var MODES={
+  passenger:{
+    welcome:"Hi! I'm TaxiAI 🚕 Your NYC taxi assistant. I can help you estimate fares, find the best travel times, and answer trip questions.",
+    quick:['Estimate my fare','Best time to travel','Avoid rush hour?','How to pay?','Airport tips','Is it safe to travel?','Cancel a ride','Lost & found'],
+    replies:{
+      fare:function(){
+        var d=parseFloat(document.getElementById('p-dist').value)||3;
+        var h=parseInt(document.getElementById('p-hour').value)||9;
+        var boro=document.querySelector('#boro-chips .chip.on');
+        var b=boro?boro.textContent:'Manhattan';
+        var rush=isRush(h);
+        var base=d*1.1*3.2+2.5;
+        if(rush)base*=1.35;
+        return 'For a '+d.toFixed(1)+'-mile trip in '+b+': estimated $'+base.toFixed(2)+'. '+(rush?'Rush hour adds ~30–40% to fares.':'Off-peak rates apply right now.');
+      },
+      best:function(){return 'Best times: 11 PM–5 AM (fastest, cheapest). Midday 11 AM–3 PM is also good. Avoid 7–10 AM and 4–7 PM — duration nearly doubles!';},
+      rush:function(){return 'Rush hours are 7–10 AM and 4–7 PM. Our ML model shows a 3-mile trip takes ~10 min overnight but ~21 min at 5 PM. If possible, travel before 7 AM or after 7 PM.';},
+      pay:function(){return 'NYC taxis accept credit cards, debit cards, Apple Pay, and cash. Card users average $13.62/trip — nearly same as cash ($13.58). Tips are expected for card payments.';},
+      airport:function(){return 'JFK: flat rate $70 from Manhattan (plus tolls & tip). LaGuardia: metered, ~$35–55. Pro tip: avoid airport taxis during 4–7 PM rush — add 30+ min to your trip!';},
+      safe:function(){return 'NYC yellow taxis are licensed by TLC. All cabs have GPS, security cameras, and the driver info displayed. You can share your trip with someone via the NYC Taxi app.';},
+      cancel:function(){return 'Hailed yellow cabs can be turned down before you enter. Once inside, you can ask to stop at any point and pay for the distance traveled. No cancellation fee.';},
+      lost:function(){return 'Lost something? Call 311 or visit nyc.gov/taxi. You can also call the driver directly if you have their medallion number from the receipt.';},
+      default:function(q){return 'Thanks for your question about "'+q+'"! Use the Predict tab above to estimate your trip. I\'m here if you need more help.';}
+    }
+  },
+  driver:{
+    welcome:"Hey driver! 🚖 I can help with demand patterns, best zones, earnings tips, and trip insights from our 40K-trip dataset.",
+    quick:['Busiest hours now','Top pickup zones','Best earning areas','Rush hour strategy','Airport runs worth it?','Avg fare per trip','Slow hours to avoid','Weather impact'],
+    replies:{
+      busiest:function(){return 'Peak demand: 4–7 PM (3,047–3,093 trips/hr) and 7–10 AM (1,745–2,755/hr). Midday 11 AM–3 PM is steady. Late night 0–5 AM is slowest (~170–385/hr).';},
+      zones:function(){return 'Top pickup zones: 1) Times Sq/Theatre District (2,324 trips) 2) Penn Station (2,240) 3) Midtown Center (2,201) 4) JFK Airport (1,452) 5) LaGuardia (1,345).';},
+      earning:function(){return 'Best earning areas: Midtown Manhattan (highest volume), JFK/LaGuardia (highest per-trip fare ~$63 avg). Queens runs pay more per mile but fewer pickups.';},
+      strategy:function(){return 'Rush hour tip: Position near Penn Station or Times Sq at 7 AM and 4 PM. Fares average $15.40 vs $11.60 overnight — 33% more. But trips take 2x longer, so plan accordingly.';},
+      airport:function(){return 'JFK is your best bet — avg $63/trip on real TLC data (vs $13.60 city avg). Flat rate from Manhattan so distance doesn\'t hurt you. Aim for 6–7 AM or 8–10 PM to avoid rush.';},
+      fare:function(){return 'Average fare: $13.60/trip, avg distance 2.95 mi. Card payments average $13.62 with $2.08 tip. Cash averages $13.58, $0 tip. Accepting cards gets you more tips!';},
+      slow:function(){return 'Slowest hours: 2–4 AM (170–204 trips/hr citywide). Also Sunday mornings 3–6 AM. Best to reposition near hotels or late-night venues during these windows.';},
+      weather:function(){return 'Weather isn\'t in our dataset, but NYC data shows rainy days increase demand 20–30% and reduce average speed. Position near subway stations during rain — people avoid walking.';},
+      default:function(q){return 'Good question about "'+q+'"! Check the Demand tab for hourly patterns. Our dataset covers '+40000..toLocaleString()+' trips across Manhattan, Queens, and Brooklyn.';}
+    }
+  },
+  data:{
+    welcome:"Data Q&A mode 📊 Ask me anything about the Spark pipeline, ML model, dataset, or methodology!",
+    quick:['What is R-squared?','How does streaming work?','Top ML features?','Dataset size?','Run the pipeline','What is RMSE?','Real data validation','Why Random Forest?'],
+    replies:{
+      r2:function(){return 'R² (R-squared) = 0.867 for Random Forest. It means the model explains 86.7% of variance in trip duration. Range: 0–1, higher is better. Our real-data R² is 0.735 — noisier due to traffic/weather.';},
+      stream:function(){return 'Spark Structured Streaming reads 12 micro-batch CSVs (1 per trigger), maintains a running aggregation of trips/fare/duration per pickup hour in complete output mode, then terminates with trigger(availableNow=True).';},
+      feature:function(){return 'Top features: trip_distance 78.1%, is_rush_hour 16.3%, pickup_hour 4.7%, passenger_count 0.3%, pickup_dow 0.3%. Distance dominates but rush-hour nearly doubles duration for the same distance.';},
+      dataset:function(){return '40,000 synthetic trips × 13 columns (committed sample, seed=42). Also validated on real TLC Jan-2024 Parquet: 2,964,624 rows. Real data R²=0.735 vs sample R²=0.867.';},
+      run:function(){return 'One command: bash run.sh or make run. Runs all 5 stages: generate_sample → ingestion → transformations → streaming → ml_pipeline. Takes ~1–2 min in Spark local[*] mode.';},
+      rmse:function(){return 'RMSE = 3.87 minutes for Random Forest (vs 3.89 for Linear Regression). Means predictions are off by ~3.87 min on average. MAE = 2.63 min (less sensitive to large errors).';},
+      real:function(){return 'Real-data validation: ran pipeline on TLC Jan-2024 (2.96M rows). RF RMSE: 6.14 min, R²: 0.735 vs LR RMSE: 9.94, R²: 0.305. The RF advantage is much larger on real data — trip duration is genuinely non-linear.';},
+      forest:function(){return 'Random Forest chosen because: (1) captures non-linear rush-hour congestion effects, (2) handles categorical features well, (3) provides feature importances, (4) robust to outliers. On real data it outperforms LR by 38% on RMSE.';},
+      default:function(q){return 'For "'+q+'": our pipeline uses Structured APIs, Spark SQL, Streaming, and MLlib. Check the Pipeline tab for stage details, or ask me something more specific!';}
+    }
+  }
+};
+
+function setMode(mode,i){
+  chatMode=mode;
+  ['m0','m1','m2'].forEach(function(id,j){
+    document.getElementById(id).classList.toggle('on',j===i);
+  });
   document.getElementById('chat-msgs').innerHTML='';
+  chatHistory=[];
   initChat();
 }
 
 function initChat(){
-  const m=MODES[currentMode];
-  addMsg(m.welcome,'bot');
+  var m=MODES[chatMode];
+  addBotMsg(m.welcome);
   buildQuick(m.quick);
 }
 
 function buildQuick(qs){
-  document.getElementById('quick-btns').innerHTML=qs.map(q=>`<button class="quick-btn" onclick="handleQuick('${q}')">${q}</button>`).join('');
+  document.getElementById('quick-area').innerHTML=qs.map(function(q){
+    return '<button class="qbtn" onclick="handleQ(this.textContent)">'+q+'</button>';
+  }).join('');
 }
 
-function handleQuick(q){addUserMsg(q);processMsg(q);}
-
-function addMsg(text,type){
-  const d=document.createElement('div');
-  d.className=`msg ${type}`;d.textContent=text;
-  document.getElementById('chat-msgs').appendChild(d);
-  document.getElementById('chat-msgs').scrollTop=99999;
+function handleQ(q){
+  addUserMsg(q);
+  processMsg(q);
 }
 
-function addUserMsg(text){addMsg(text,'user');}
-
-async function typeMsg(text){
-  const d=document.createElement('div');
-  d.className='msg typing';
-  d.innerHTML='<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+function addBotMsg(text){
+  var d=document.createElement('div');
+  d.className='msg bot';
+  d.textContent=text;
   document.getElementById('chat-msgs').appendChild(d);
-  document.getElementById('chat-msgs').scrollTop=99999;
-  await new Promise(r=>setTimeout(r,900));
-  d.className='msg bot';d.textContent=text;
-  document.getElementById('chat-msgs').scrollTop=99999;
+  scrollChat();
+}
+
+function addUserMsg(text){
+  var d=document.createElement('div');
+  d.className='msg user';
+  d.textContent=text;
+  document.getElementById('chat-msgs').appendChild(d);
+  scrollChat();
+}
+
+function scrollChat(){
+  var msgs=document.getElementById('chat-msgs');
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function showTyping(){
+  var tw=document.createElement('div');
+  tw.className='typing-wrap';
+  tw.id='typing';
+  tw.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  document.getElementById('chat-msgs').appendChild(tw);
+  scrollChat();
+  return tw;
 }
 
 function processMsg(input){
-  const q=input.toLowerCase();
-  const r=MODES[currentMode].responses;
-  const dist=parseFloat(document.getElementById('p-dist')?.value)||3;
-  const boro=document.querySelector('#boro-chips .chip.on')?.textContent||'Manhattan';
-  let reply;
-  if(q.includes('estimate')||q.includes('fare')||q.includes('cost')||q.includes('price'))reply=(r.estimate||r.default)({dist,boro});
-  else if(q.includes('rush'))reply=(r.rush||r.default)(q);
-  else if(q.includes('payment')||q.includes('cash')||q.includes('card'))reply=(r.payment||r.default)(q);
-  else if(q.includes('track'))reply=(r.track||r.default)(q);
-  else if(q.includes('best time')||q.includes('when'))reply=(r['best time']||r.default)(q);
-  else if(q.includes('busiest')||q.includes('busy')||q.includes('peak'))reply=(r.busiest||r.default)(q);
-  else if(q.includes('zone')||q.includes('pickup'))reply=(r.zones||r.default)(q);
-  else if(q.includes('airport')||q.includes('jfk')||q.includes('laguardia'))reply=(r.airport||r.default)(q);
-  else if(q.includes('r²')||q.includes('r2')||q.includes('accuracy')||q.includes('score'))reply=(r['r²']||r.default)(q);
-  else if(q.includes('stream'))reply=(r.streaming||r.default)(q);
-  else if(q.includes('feature')||q.includes('important'))reply=(r.feature||r.default)(q);
-  else if(q.includes('dataset')||q.includes('data')||q.includes('size'))reply=(r.dataset||r.default)(q);
-  else if(q.includes('run')||q.includes('command')||q.includes('bash'))reply=(r.run||r.default)(q);
-  else if(q.includes('rmse')||q.includes('error'))reply=(r.rmse||r.default)(q);
-  else reply=r.default(input);
-  typeMsg(reply);
+  var tw=showTyping();
+  var q=input.toLowerCase();
+  var r=MODES[chatMode].replies;
+  var reply='';
+  if(q.indexOf('fare')>-1||q.indexOf('cost')>-1||q.indexOf('price')>-1||q.indexOf('estimate')>-1){reply=r.fare?r.fare():'';}
+  else if(q.indexOf('best time')>-1||q.indexOf('when')>-1||q.indexOf('fastest')>-1){reply=r.best?r.best():'';}
+  else if(q.indexOf('rush')>-1){reply=r.rush?r.rush():r.strategy?r.strategy():'';}
+  else if(q.indexOf('pay')>-1||q.indexOf('cash')>-1||q.indexOf('card')>-1){reply=r.pay?r.pay():'';}
+  else if(q.indexOf('airport')>-1||q.indexOf('jfk')>-1||q.indexOf('laguardia')>-1){reply=r.airport?r.airport():'';}
+  else if(q.indexOf('safe')>-1||q.indexOf('secur')>-1){reply=r.safe?r.safe():'';}
+  else if(q.indexOf('cancel')>-1){reply=r.cancel?r.cancel():'';}
+  else if(q.indexOf('lost')>-1||q.indexOf('found')>-1){reply=r.lost?r.lost():'';}
+  else if(q.indexOf('busiest')>-1||q.indexOf('busy')>-1||q.indexOf('peak')>-1||q.indexOf('demand')>-1){reply=r.busiest?r.busiest():'';}
+  else if(q.indexOf('zone')>-1||q.indexOf('pickup')>-1||q.indexOf('where')>-1){reply=r.zones?r.zones():'';}
+  else if(q.indexOf('earn')>-1||q.indexOf('money')>-1||q.indexOf('best area')>-1){reply=r.earning?r.earning():'';}
+  else if(q.indexOf('strateg')>-1||q.indexOf('tip')>-1){reply=r.strategy?r.strategy():'';}
+  else if(q.indexOf('avg fare')>-1||q.indexOf('average fare')>-1){reply=r.fare?r.fare():'';}
+  else if(q.indexOf('slow')>-1||q.indexOf('quiet')>-1){reply=r.slow?r.slow():'';}
+  else if(q.indexOf('weather')>-1||q.indexOf('rain')>-1){reply=r.weather?r.weather():'';}
+  else if(q.indexOf('r2')>-1||q.indexOf('r-squared')>-1||q.indexOf('r squared')>-1||q.indexOf('accuracy')>-1){reply=r.r2?r.r2():'';}
+  else if(q.indexOf('stream')>-1){reply=r.stream?r.stream():'';}
+  else if(q.indexOf('feature')>-1||q.indexOf('important')>-1){reply=r.feature?r.feature():'';}
+  else if(q.indexOf('dataset')>-1||q.indexOf('data size')>-1||q.indexOf('how many')>-1){reply=r.dataset?r.dataset():'';}
+  else if(q.indexOf('run')>-1||q.indexOf('command')>-1||q.indexOf('bash')>-1){reply=r.run?r.run():'';}
+  else if(q.indexOf('rmse')>-1||q.indexOf('error')>-1){reply=r.rmse?r.rmse():'';}
+  else if(q.indexOf('real data')>-1||q.indexOf('validation')>-1||q.indexOf('tlc')>-1){reply=r.real?r.real():'';}
+  else if(q.indexOf('random forest')>-1||q.indexOf('why forest')>-1||q.indexOf('model choice')>-1){reply=r.forest?r.forest():'';}
+  else{reply=r.default(input);}
+  setTimeout(function(){
+    var t=document.getElementById('typing');
+    if(t)t.remove();
+    addBotMsg(reply);
+  },900);
 }
 
 function sendMsg(){
-  const inp=document.getElementById('chat-input');
-  const txt=inp.value.trim();
+  var inp=document.getElementById('chat-input');
+  var txt=inp.value.trim();
   if(!txt)return;
   addUserMsg(txt);
   inp.value='';
@@ -627,4 +780,5 @@ function sendMsg(){
 
 upd();
 </script>
-</body></html>
+</body>
+</html>
