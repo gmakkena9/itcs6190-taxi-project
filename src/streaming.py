@@ -236,4 +236,15 @@ def run_continuous(timeout_seconds: int | None = 60) -> None:
 
 
 if __name__ == "__main__":
-    run()
+    import sys
+
+    if "--continuous" in sys.argv:
+        # Optional: streaming.py --continuous [timeout_seconds]
+        # e.g. `python3 streaming.py --continuous 60` runs the processingTime
+        # trigger for 60s then stops; `python3 streaming.py --continuous`
+        # with no number runs until Ctrl+C.
+        args = [a for a in sys.argv[1:] if a != "--continuous"]
+        timeout = int(args[0]) if args else 60
+        run_continuous(timeout_seconds=timeout if timeout > 0 else None)
+    else:
+        run()
