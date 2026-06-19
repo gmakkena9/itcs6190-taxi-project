@@ -40,13 +40,35 @@ data is written to columnar Parquet so downstream stages avoid re-parsing CSV.
 ## 3. Structured Streaming (`src/streaming.py`)
 The sample is split into 12 small CSV files written to `data/stream_source/` to
 simulate an arriving feed. A streaming query reads that directory **one file per
-trigger** (`maxFilesPerTrigger = 1`) with an explicit schema, maintains a running
-aggregation of trips / average fare / average duration per pickup hour
-(`outputMode("complete")`), and is driven by `trigger(availableNow=True)` so it
-processes every micro-batch and then terminates cleanly — exercising the full
-source → stateful aggregation → sink path while staying deterministic inside a
-batch pipeline. The aggregation logic is factored into a pure function so it can
-be unit-tested on static data.
+trigger** (`maxFilesPerTrigger = 1`) with an explicit schema and maintains a
+running aggregation of trips / average fare / average duration per pickup hour
+(`outputMode("complete")`). The aggregation logic is factored into a pure
+function (`aggregate_zone_stream`) so it can be unit-tested on static data.
+
+Two trigger modes are implemented, matching two different use cases:
+
+- **`run()` — `trigger(availableNow=True)`.** Used by `bash run.sh`. Processes
+  every micro-batch file that is on disk when the query starts and then stops
+  on its own. This is the right trigger for a single, reproducible,
+  non-interactive pipeline run that needs to terminate and produce a final
+  output file.
+- **`run_continuous()` — `trigger(processingTime="5 seconds")`.** A genuinely
+  long-running stream: Spark polls `data/stream_source/` every 5 seconds and
+  picks up any new files, indefinitely, until the query is stopped
+  (`query.stop()`, Ctrl+C, or a bounded `awaitTermination(timeout)` for demo
+  purposes). This is the trigger a real continuous deployment of this job
+  would use.
+
+This split came out of a discussion with the instructor: an earlier version of
+this stage used `time.sleep()` before starting the `availableNow` query, on the
+assumption that this would let in-flight files get fully written before the
+stream "missed" them. That doesn't actually solve anything, because
+`availableNow` only looks at what's present the moment the query starts — no
+amount of sleeping beforehand changes that, and it can't react to files written
+*after* the query begins either way. The correct fix, applied here, is to use
+`processingTime` for any code path that's actually meant to behave like a
+continuous stream, and reserve `availableNow` for the "run once, drain
+everything, exit" case that the one-command pipeline needs.
 
 ## 4. MLlib Regression (`src/ml_pipeline.py`)
 A Spark ML `Pipeline` predicts `trip_duration_min`:

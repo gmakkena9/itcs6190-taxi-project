@@ -5,10 +5,28 @@ small CSV files dropped into ``data/stream_source``, and a Structured Streaming
 query reads that directory one file per trigger, maintains a running aggregation
 of trips / average fare / average duration per pickup hour, and writes results.
 
-Using ``trigger(availableNow=True)`` processes every available micro-batch and
-then stops, so the job terminates cleanly inside the single-command pipeline
-while still exercising the full streaming code path (source -> stateful
-aggregation -> sink).
+Two trigger modes are provided:
+
+* ``run()`` uses ``trigger(availableNow=True)``. This processes every
+  micro-batch file that is already on disk and then stops on its own, which is
+  what we want for ``bash run.sh`` / ``make run``: a single, reproducible,
+  non-interactive command that finishes and writes outputs. It is NOT meant to
+  wait for new files to keep arriving.
+
+* ``run_continuous()`` uses ``trigger(processingTime="5 seconds")``. This is
+  the correct trigger for a genuinely long-running stream: Spark polls
+  ``data/stream_source`` every 5 seconds and processes any new files that show
+  up, indefinitely, until the query is stopped (Ctrl+C, ``query.stop()``, or an
+  ``awaitTermination(timeout)``). This mode is for demonstrating/discussing a
+  real continuous deployment; it is not used by the one-command pipeline run.
+
+Earlier in development this stage used a ``time.sleep()`` before starting the
+query as a workaround for files not being fully visible yet under
+``availableNow=True``. That was the wrong fix for the wrong problem :
+``availableNow`` is a "drain what's here, then stop" trigger, so it will never
+wait for files written after the query starts no matter how long you sleep
+beforehand. The proper fix is to pick the trigger that matches the intended
+behavior, which is what the two functions below do.
 """
 from __future__ import annotations
 
@@ -115,6 +133,11 @@ def aggregate_zone_stream(df: DataFrame) -> DataFrame:
 
 
 def run() -> None:
+    """One-shot pipeline mode: drain all micro-batches then stop.
+
+    Used by ``bash run.sh`` / ``make run`` so the whole pipeline finishes and
+    exits without manual intervention.
+    """
     ensure_dirs()
     spark = get_spark("streaming")
     prepare_stream_source(spark)
@@ -156,6 +179,58 @@ def run() -> None:
         shutil.rmtree(out_dir)
     result.coalesce(1).write.mode("overwrite").option("header", True).csv(out_dir)
     print(f"Wrote streaming summary -> {out_dir}")
+
+    spark.stop()
+
+
+def run_continuous(timeout_seconds: int | None = 60) -> None:
+    """Continuous-stream mode: poll the source every 5s and keep running.
+
+    This is the trigger shape a real long-lived deployment would use, per the
+    course discussion on ``availableNow`` vs ``processingTime``. New files
+    dropped into ``data/stream_source`` while this is running are picked up on
+    the next 5-second poll instead of being missed.
+
+    ``timeout_seconds`` bounds the demo run so it doesn't hang forever in CI or
+    a terminal; pass ``None`` to run until manually stopped (Ctrl+C).
+    """
+    ensure_dirs()
+    spark = get_spark("streaming-continuous")
+    prepare_stream_source(spark)
+    banner("STAGE 3 | STRUCTURED STREAMING (continuous, processingTime trigger)")
+    print(f"Polling {STREAM_SOURCE_DIR} every 5 seconds for new files")
+
+    stream = (
+        spark.readStream.option("header", True)
+        .schema(TRIP_SCHEMA)
+        .csv(STREAM_SOURCE_DIR)
+    )
+
+    agg = aggregate_zone_stream(stream)
+
+    ckpt = os.path.join(CHECKPOINT_DIR, "zone_stream_continuous")
+    if os.path.isdir(ckpt):
+        shutil.rmtree(ckpt)
+
+    query = (
+        agg.writeStream.outputMode("complete")
+        .format("memory")
+        .queryName("zone_stream_continuous")
+        .option("checkpointLocation", ckpt)
+        .trigger(processingTime="5 seconds")
+        .start()
+    )
+
+    try:
+        if timeout_seconds is not None:
+            query.awaitTermination(timeout_seconds)
+            query.stop()
+            print(f"Stopped after {timeout_seconds}s demo window.")
+        else:
+            query.awaitTermination()
+    except KeyboardInterrupt:
+        query.stop()
+        print("Stopped by user (Ctrl+C).")
 
     spark.stop()
 
