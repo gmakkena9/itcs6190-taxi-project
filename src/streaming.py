@@ -235,16 +235,40 @@ def run_continuous(timeout_seconds: int | None = 60) -> None:
     spark.stop()
 
 
+def parse_cli_args(argv: list[str]) -> tuple[bool, int | None]:
+    """Parse ``sys.argv[1:]``-style args into (is_continuous, timeout_seconds).
+
+    Pure function (no Spark, no I/O) so the CLI parsing logic can be unit
+    tested directly, independent of actually starting a streaming query.
+
+    Examples
+    --------
+    >>> parse_cli_args([])
+    (False, None)
+    >>> parse_cli_args(["--continuous"])
+    (True, 60)
+    >>> parse_cli_args(["--continuous", "30"])
+    (True, 30)
+    >>> parse_cli_args(["--continuous", "0"])
+    (True, None)
+    """
+    if "--continuous" not in argv:
+        return False, None
+    rest = [a for a in argv if a != "--continuous"]
+    timeout = int(rest[0]) if rest else 60
+    return True, (timeout if timeout > 0 else None)
+
+
 if __name__ == "__main__":
     import sys
 
-    if "--continuous" in sys.argv:
-        # Optional: streaming.py --continuous [timeout_seconds]
-        # e.g. `python3 streaming.py --continuous 60` runs the processingTime
-        # trigger for 60s then stops; `python3 streaming.py --continuous`
-        # with no number runs until Ctrl+C.
-        args = [a for a in sys.argv[1:] if a != "--continuous"]
-        timeout = int(args[0]) if args else 60
-        run_continuous(timeout_seconds=timeout if timeout > 0 else None)
+    # Optional: streaming.py --continuous [timeout_seconds]
+    # e.g. `python3 streaming.py --continuous 60` runs the processingTime
+    # trigger for 60s then stops; `python3 streaming.py --continuous`
+    # with no number defaults to a 60s demo window;
+    # `python3 streaming.py --continuous 0` runs until Ctrl+C.
+    is_continuous, timeout = parse_cli_args(sys.argv[1:])
+    if is_continuous:
+        run_continuous(timeout_seconds=timeout)
     else:
         run()
