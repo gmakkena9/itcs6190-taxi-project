@@ -192,7 +192,7 @@ synthetic sample.
 | 3 | Ingestion + EDA — typed ingestion, Spark SQL, visualizations | ✅ Complete |
 | 4 | Streaming + MLlib — 12-batch simulation, RF + LR models | ✅ Complete |
 | 5 | Full pipeline + docs + real-data validation | ✅ Complete |
-| 6  | Final release v1.0.0 + live presentation | ✅ Tagged, ready to present |
+| 5  | Final release v1.0.0 + live presentation | ✅ Tagged, ready to present |
 
 ---
 
